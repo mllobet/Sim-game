@@ -5,12 +5,17 @@ public class Board {
 
 	public static boolean iAmDebugging = true;
 	
-	private char[][] _state; 
+	private char[][] _state;
+	
+	private static final char RED = 'r';
+	private static final char BLUE = 'b';
+	private static final char WHITE = 'w';
+	
 	
 	class State
 	{
 		char[][] state = new char[6][6];
-		char color = 'r';
+		char color = Board.RED;
 		public State(char[][] s, char col){
 			state = s;
 			color = col;
@@ -22,18 +27,14 @@ public class Board {
 		_state = new char[6][6];
 		for(int i = 0; i < 6; ++i)
 			for(int j = 0; j < 6; ++j)
-				if(i != j) _state[i][j] = 'w';
+				if(i != j) _state[i][j] = Board.WHITE;
 	}
 	
 	// Add the given connector with the given color to the board.
 	// Unchecked precondition: the given connector is not already chosen 
 	// as RED or BLUE.
 	public void add (Connector cnctr, Color c) {
-		char paint;
-		if(c.equals(Color.RED))
-			paint = 'r';
-		else 
-			paint = 'b';
+		char paint = this.ColorToChar(c);
 		
 		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = paint;
 		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = paint;
@@ -43,16 +44,16 @@ public class Board {
 	// which is either RED, BLUE, or WHITE. 
 	// If the color is WHITE, iterate through the uncolored connectors.
 	// No connector should appear twice in the iteration.  
-	public Iterator<Connector> connectors (Color c) {
-		// You fill this in.
-		return null;
+	public java.util.Iterator<Connector> connectors (Color c)
+	{
+		return new Iterator(_state, this.ColorToChar(c));
 	}
 	
 	// Set up an iterator through all the 15 connectors.
 	// No connector should appear twice in the iteration.  
-	public Iterator<Connector> connectors ( ) {
-		// You fill this in.
-		return null;
+	public java.util.Iterator<Connector> connectors ( )
+	{
+		return new Iterator(_state);
 	}
 	
 	// Return the color of the given connector.
@@ -114,7 +115,15 @@ public class Board {
 		}
 		return false;
 	}
-	
+
+	private char ColorToChar(Color c)
+	{
+		if (c.equals(Color.RED))
+			return Board.RED;
+		else if (c.equals(Color.BLUE))
+			return Board.BLUE;
+		return Board.WHITE;
+	}
 	
 	
 	/*
@@ -145,5 +154,60 @@ public class Board {
 	public boolean isOK ( ) {
 		// You fill this in.
 		return true;
+	}
+	
+	public static class Iterator implements java.util.Iterator<Connector>
+	{
+		public static final char NULL_COLOR = '\0';
+		
+		private char     _color;
+		private char[][] _matrix;
+		private int      _x;
+		private int      _y;
+		
+		public Iterator(char[][] matrix, char color)
+		{
+			_color = color;
+			_matrix = matrix;
+			_y = 0;
+			_x = 0;
+		}
+		
+		public Iterator(char[][] matrix)
+		{
+			_color = Iterator.NULL_COLOR;
+			_matrix = matrix;
+			_y = 0;
+			_x = 1;
+		}
+		
+		@Override
+		public boolean hasNext()
+		{
+			while (_y < 6)
+			{
+				while (_x < 6)
+				{
+					if (_color == Iterator.NULL_COLOR || _color == _matrix[_y][_x])
+						return true;
+					_x++;
+				}
+				++_y;
+				_x = _y + 1;
+			}
+			return false;
+		}
+
+		@Override
+		public Connector next()
+		{
+			return new Connector(++_x, _y + 1);
+		}
+
+		@Override
+		public void remove()
+		{
+			// throw new RuntimeException("Method remove is not implemented and should not be used");
+		}	
 	}
 }
