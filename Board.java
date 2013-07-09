@@ -11,8 +11,16 @@ public class Board {
 	private boolean[] redConnectors;
 	private boolean[] blueConnectors;
 	
+	private Color[][] _adjencyMatrix;
+	
 	// Initialize an empty board with no colored edges.
 	public Board ( ) {
+		_adjencyMatrix = new Color[6][6];
+		for (int i = 0; i < 6; i++)
+		{
+			Arrays.fill(_adjencyMatrix[i], Color.WHITE);
+		}
+		
 		whiteConnectors = new boolean[15];
 		redConnectors = new boolean[15];
 		blueConnectors = new boolean[15];
@@ -34,31 +42,29 @@ public class Board {
 	// Unchecked precondition: the given connector is not already chosen 
 	// as RED or BLUE.
 	public void add (Connector cnctr, Color c) {
-		// You fill this in.
 	}
 	
 	// Set up an iterator through the connectors of the given color, 
 	// which is either RED, BLUE, or WHITE. 
 	// If the color is WHITE, iterate through the uncolored connectors.
 	// No connector should appear twice in the iteration.  
-	public Iterator<Connector> connectors (Color c) {
-		// You fill this in.
-		return null;
+	public java.util.Iterator<Connector> connectors (Color c)
+	{
+		return new Iterator(_state, c);
 	}
 	
 	// Set up an iterator through all the 15 connectors.
 	// No connector should appear twice in the iteration.  
-	public Iterator<Connector> connectors ( ) {
-		// You fill this in.
-		return null;
+	public java.util.Iterator<Connector> connectors ( )
+	{
+		return new Iterator(_state);
 	}
 	
 	// Return the color of the given connector.
 	// If the connector is colored, its color will be RED or BLUE;
 	// otherwise, its color is WHITE.
-	public Color colorOf (Connector e) {
-		// You fill this in.
-		return Color.WHITE;
+	public Color colorOf (Connector e)
+	{
 	}
 	
 	// Unchecked prerequisite: cnctr is an initialized uncolored connector.
@@ -91,5 +97,60 @@ public class Board {
 	public boolean isOK ( ) {
 		// You fill this in.
 		return true;
+	}
+	
+	public static class Iterator implements java.util.Iterator<Connector>
+	{
+		public static final char NULL_COLOR = '\0';
+		
+		private char     _color;
+		private char[][] _matrix;
+		private int      _x;
+		private int      _y;
+		
+		public Iterator(char[][] matrix, char color)
+		{
+			_color = color;
+			_matrix = matrix;
+			_y = 0;
+			_x = 0;
+		}
+		
+		public Iterator(char[][] matrix)
+		{
+			_color = Iterator.NULL_COLOR;
+			_matrix = matrix;
+			_y = 0;
+			_x = 1;
+		}
+		
+		@Override
+		public boolean hasNext()
+		{
+			while (_y < 6)
+			{
+				while (_x < 6)
+				{
+					if (_color == Iterator.NULL_COLOR || _color == _matrix[_y][_x])
+						return true;
+					_x++;
+				}
+				++_y;
+				_x = _y + 1;
+			}
+			return false;
+		}
+
+		@Override
+		public Connector next()
+		{
+			return new Connector(++_x, _y + 1);
+		}
+
+		@Override
+		public void remove()
+		{
+			// throw new RuntimeException("Method remove is not implemented and should not be used");
+		}	
 	}
 }
