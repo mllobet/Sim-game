@@ -84,6 +84,11 @@ public class Board {
 	// to p3 and p2 is adjacent to p3 and those connectors have color c.
 	public boolean formsTriangle (Connector cnctr, Color c) 
 	{		
+		if (_state[cnctr.endPt1()][cnctr.endPt2()] != 'w')
+		{
+			throw new IllegalFormatException("Invalid connector");
+		}
+		
 		int nbSegments = 0;
 		List<Integer> segmentsList = new ArrayList<Integer>();
 		
