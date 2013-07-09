@@ -38,8 +38,10 @@ public class Connector {
 	// If the contents of the given string is correctly formatted,
 	// return the corresponding connector.  Otherwise, throw IllegalFormatException.
 	public static Connector toConnector (String s) throws IllegalFormatException {
-		if(s == null) throw new IllegalFormatException("Null string");
-		else if(s.length() <= 1) throw new IllegalFormatException("String with length <= 1");
+		if(s == null) 
+			throw new IllegalFormatException("Null string");
+		else if(s.length() <= 1) 
+			throw new IllegalFormatException("String with length <= 1");
 
 		int p1, p2;
 		p1 = p2 = 0;
