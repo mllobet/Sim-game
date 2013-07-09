@@ -18,6 +18,7 @@ Strategies
 There actually is a [winning strategy] for the second player ([implementation]), but it is COMPLICATED, the next best strategies are search algorithms based on prunning the search tree of the [minimax algorithm]:
 
   - [Strategic game programming] Sublime explanation, most of the algorithms are there
+  - [Game playing lectures]
   - [α ß prunning]
   - [Negascout] (Outperforms minimax)
 
@@ -30,5 +31,6 @@ There actually is a [winning strategy] for the second player ([implementation]),
   [implementation]: http://puzzles.net23.net/sim.htm
   [minimax algorithm]: https://en.wikipedia.org/wiki/Minimax#Minimax_algorithm_with_alternate_moves
   [Strategic game programming]: http://fierz.ch/strategy.htm
+  [Game playing lectures]: http://webdocs.cs.ualberta.ca/~jonathan/PREVIOUS/Courses/657/Notes/
   [α ß prunning]: https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning
   [Negascout]: https://en.wikipedia.org/wiki/Negascout

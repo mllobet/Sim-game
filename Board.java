@@ -37,7 +37,7 @@ public class Board {
 	// as RED or BLUE.
 	public void add (Connector cnctr, Color c) {
 		char paint = this.ColorToChar(c);
-		
+
 		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = paint;
 		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = paint;
 	}
@@ -69,17 +69,6 @@ public class Board {
 		else
 			return Color.WHITE;
 	}
-	
-	private boolean testSegments(List<Integer> segmentsList, Connector cnctr)
-	{
-		int p1 = cnctr.endPt1();
-		int p2 = cnctr.endPt2();
-		
-		if (segmentsList.contains(p1) && segmentsList.contains(p2))
-			return true;
-		
-		return false;
-	}
 
 	// Unchecked prerequisite: cnctr is an initialized uncolored connector.
 	// Let its endpoints be p1 and p2.
@@ -92,29 +81,13 @@ public class Board {
 			throw new IllegalFormatException("Invalid connector");
 		}
 		
-		int nbSegments = 0;
-		List<Integer> segmentsList = new ArrayList<Integer>();
-		
 		char color = (Color.red.equals(c) ? 'r' : 'b');
 		
-		for (int i = 0; i < 6; ++i)
-		{
-			for (int j = 0; j < 6; ++i)
-			{
-				if (_state[i][j] == color)
-				{
-					segmentsList.add(j);
-					++nbSegments;
-				}
-			}
-		
-			if (nbSegments >= 2)
-			{
-				if (testSegments(segmentsList, cnctr))
+		for(int i = 0; i < 6; ++i)
+			if(_state[cnctr.endPt1() - 1][i] == color && i != cnctr.endPt2() - 1)
+				if(_state[cnctr.endPt2() - 1][i] == color) 
 					return true;
-			}
-			segmentsList.clear();
-		}
+			
 		return false;
 	}
 
@@ -137,15 +110,22 @@ public class Board {
 		p.state[c.endPt2() - 1][c.endPt1() - 1] = p.player;
 	}
 
-	// Does a move in a current position
+	// Undoes a move in a current position
 	private void undoMove(Connector c, Position p) {
 		p.state[c.endPt1() - 1][c.endPt2() - 1] = 'w';
 		p.state[c.endPt2() - 1][c.endPt1() - 1] = 'w';
 	}
-	
-	//evaluates if the position is good for the player in the position p
+
+	// Gets all the possible moves in a given position
+	public java.util.Iterator<Connector> moves (Position p)
+	{
+		return new Iterator(p.state, WHITE);
+	}
+
+	// Evaluates if the position is good for the player in the position p, priorizes speed over correctness.
+	// Returns positive or negative value, wether or not it is good for the player at the current position.
 	private void evaluate(Position p) {
-		
+
 	}
 
 
@@ -172,16 +152,16 @@ public class Board {
 		// You fill this in.
 		return true;
 	}
-	
+
 	public static class Iterator implements java.util.Iterator<Connector>
 	{
 		public static final char NULL_COLOR = '\0';
-		
+
 		private char     _color;
 		private char[][] _matrix;
 		private int      _x;
 		private int      _y;
-		
+
 		public Iterator(char[][] matrix, char color)
 		{
 			_color = color;
@@ -189,7 +169,7 @@ public class Board {
 			_y = 0;
 			_x = 0;
 		}
-		
+
 		public Iterator(char[][] matrix)
 		{
 			_color = Iterator.NULL_COLOR;
@@ -197,7 +177,7 @@ public class Board {
 			_y = 0;
 			_x = 1;
 		}
-		
+
 		@Override
 		public boolean hasNext()
 		{
