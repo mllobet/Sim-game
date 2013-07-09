@@ -61,12 +61,46 @@ public class Board {
 		return Color.WHITE;
 	}
 	
+	private boolean testSegments(List<Integer> segmentsList, Connector cnctr)
+	{
+		int p1 = cnctr.endPt1();
+		int p2 = cnctr.endPt2();
+		
+		if (segmentsList.contains(p1) && segmentsList.contains(p2))
+			return true;
+		
+		return false;
+	}
+	
 	// Unchecked prerequisite: cnctr is an initialized uncolored connector.
 	// Let its endpoints be p1 and p2.
 	// Return true exactly when there is a point p3 such that p1 is adjacent
 	// to p3 and p2 is adjacent to p3 and those connectors have color c.
-	public boolean formsTriangle (Connector cnctr, Color c) {
-		// You fill this in.
+	public boolean formsTriangle (Connector cnctr, Color c) 
+	{		
+		int nbSegments = 0;
+		List<Integer> segmentsList = new ArrayList<Integer>();
+		
+		char color = (Color.red.equals(c) ? 'r' : 'b');
+		
+		for (int i = 0; i < 6; ++i)
+		{
+			for (int j = 0; j < 6; ++i)
+			{
+				if (_state[i][j] == color)
+				{
+					segmentsList.add(j);
+					++nbSegments;
+				}
+			}
+		
+			if (nbSegments >= 2)
+			{
+				if (testSegments(segmentsList, cnctr))
+					return true;
+			}
+			segmentsList.clear();
+		}
 		return false;
 	}
 	

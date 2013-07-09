@@ -37,9 +37,12 @@ public class Connector {
 	// 1 and 6, inclusive; moreover, the endpoints aren't identical.
 	// If the contents of the given string is correctly formatted,
 	// return the corresponding connector.  Otherwise, throw IllegalFormatException.
-	public static Connector toConnector (String s) throws IllegalFormatException {
-		if(s == null) throw new IllegalFormatException("Null string");
-		else if(s.length() <= 1) throw new IllegalFormatException("String with length <= 1");
+	public static Connector toConnector (String s) throws IllegalFormatException
+	{
+		if (s == null) 
+			throw new IllegalFormatException("Null string");
+		else if (s.length() <= 1) 
+			throw new IllegalFormatException("String with length <= 1");
 
 		int p1, p2;
 		p1 = p2 = 0;
@@ -48,15 +51,17 @@ public class Connector {
 		int i, numcount;
 		i = numcount = 0;
 
-		while(i < s.length())
+		while (i < s.length())
 		{
-			if(Character.isWhitespace(s.charAt(i)))
+			if (Character.isWhitespace(s.charAt(i)))
 			{
-				if(found_number) throw new IllegalFormatException("Whitespace between endpoints");
+				if (found_number)
+					throw new IllegalFormatException("Whitespace between endpoints");
 			}
 			else
 			{
-				if(s.charAt(i) < '1' || s.charAt(i) > '6') throw new IllegalFormatException("Not an endpoint");
+				if(s.charAt(i) < '1' || s.charAt(i) > '6') 
+					throw new IllegalFormatException("Not an endpoint");
 				else
 				{
 					++numcount;
@@ -67,15 +72,19 @@ public class Connector {
 					}
 					else if(numcount == 2) 
 					{
-						p2 = s.charAt(i) - '0'; found_number = false;
+						p2 = s.charAt(i) - '0';
+						found_number = false;
 					}
-					else throw new IllegalFormatException("More than 2 endpoints found"); //more than 2 endpoints
+					else
+						throw new IllegalFormatException("More than 2 endpoints found"); //more than 2 endpoints
 				}
 			}
 			++i;
 		}
 
-		if(p1 != p2) return new Connector(p1,p2);
-		else throw new IllegalFormatException("Endpoints are the same");
+		if (p1 != p2) 
+			return new Connector(p1,p2);
+		else 
+			throw new IllegalFormatException("Endpoints are the same");
 	}
 }
