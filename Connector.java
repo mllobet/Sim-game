@@ -53,11 +53,9 @@ public class Connector {
 
 		while (i < s.length())
 		{
-			if (Character.isWhitespace(s.charAt(i)))
-			{
-				if (found_number)
+			if(Character.isWhitespace(s.charAt(i)))
+				if(found_number) 
 					throw new IllegalFormatException("Whitespace between endpoints");
-			}
 			else
 			{
 				if(s.charAt(i) < '1' || s.charAt(i) > '6') 
@@ -75,14 +73,15 @@ public class Connector {
 						p2 = s.charAt(i) - '0';
 						found_number = false;
 					}
-					else
+					else 
 						throw new IllegalFormatException("More than 2 endpoints found"); //more than 2 endpoints
 				}
 			}
 			++i;
 		}
 
-		if (p1 != p2) 
+
+		if(p1 != p2) 
 			return new Connector(p1,p2);
 		else 
 			throw new IllegalFormatException("Endpoints are the same");
