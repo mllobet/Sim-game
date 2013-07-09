@@ -5,36 +5,38 @@ public class Board {
 
 	public static boolean iAmDebugging = true;
 	
-	private ArrayList<Connector> connectors;
+	private char[][] _state; 
 	
-	private boolean[] whiteConnectors;
-	private boolean[] redConnectors;
-	private boolean[] blueConnectors;
+	class State
+	{
+		char[][] state = new char[6][6];
+		char color = 'r';
+		public State(char[][] s, char col){
+			state = s;
+			color = col;
+		}
+	}
 	
 	// Initialize an empty board with no colored edges.
 	public Board ( ) {
-		whiteConnectors = new boolean[15];
-		redConnectors = new boolean[15];
-		blueConnectors = new boolean[15];
-		
-		Arrays.fill(whiteConnectors, true);
-		Arrays.fill(redConnectors, false);
-		Arrays.fill(blueConnectors, false);
-		
-		for(int i = 1; i <= 5; ++i)
-		{
-			for(int j = 1; j <= 6 - i; ++j)
-			{
-				if(i  <= j) connectors.add(new Connector(i,j));
-			}
-		}
+		_state = new char[6][6];
+		for(int i = 0; i < 6; ++i)
+			for(int j = 0; j < 6; ++j)
+				if(i != j) _state[i][j] = 'w';
 	}
 	
 	// Add the given connector with the given color to the board.
 	// Unchecked precondition: the given connector is not already chosen 
 	// as RED or BLUE.
 	public void add (Connector cnctr, Color c) {
-		// You fill this in.
+		char paint;
+		if(c.equals(Color.RED))
+			paint = 'r';
+		else 
+			paint = 'b';
+		
+		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = paint;
+		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = paint;
 	}
 	
 	// Set up an iterator through the connectors of the given color, 
@@ -57,8 +59,12 @@ public class Board {
 	// If the connector is colored, its color will be RED or BLUE;
 	// otherwise, its color is WHITE.
 	public Color colorOf (Connector e) {
-		// You fill this in.
-		return Color.WHITE;
+		if (_state[e.endPt1() - 1][e.endPt2() - 1] == 'r')
+			return Color.RED;
+		else if (_state[e.endPt1() - 1][e.endPt2() - 1] == 'b')
+			return Color.BLUE;
+		else
+			return Color.WHITE;
 	}
 	
 	// Unchecked prerequisite: cnctr is an initialized uncolored connector.
@@ -70,6 +76,14 @@ public class Board {
 		return false;
 	}
 	
+	
+	
+	/*
+	 * Negascout stuff
+	 */ 
+	
+	
+	
 	// The computer (playing BLUE) wants a move to make.
 	// The board is assumed to contain an uncolored connector, with no 
 	// monochromatic triangles.
@@ -79,7 +93,8 @@ public class Board {
 	// If each uncolored connector, colored BLUE, would form a BLUE triangle,
 	// return any uncolored connector.
 	public Connector choice ( ) {
-		// You fill this in.
+		State s = new State(_state, 'r');
+		
 		return null;
 	}
 
