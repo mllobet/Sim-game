@@ -5,43 +5,39 @@ public class Board {
 
 	public static boolean iAmDebugging = true;
 	
-	private ArrayList<Connector> connectors;
+	private char[][] _state;
 	
-	private boolean[] whiteConnectors;
-	private boolean[] redConnectors;
-	private boolean[] blueConnectors;
+	private static final char RED = 'r';
+	private static final char BLUE = 'b';
+	private static final char WHITE = 'w';
 	
-	private Color[][] _adjencyMatrix;
+	
+	class State
+	{
+		char[][] state = new char[6][6];
+		char color = Board.RED;
+		public State(char[][] s, char col){
+			state = s;
+			color = col;
+		}
+	}
 	
 	// Initialize an empty board with no colored edges.
 	public Board ( ) {
-		_adjencyMatrix = new Color[6][6];
-		for (int i = 0; i < 6; i++)
-		{
-			Arrays.fill(_adjencyMatrix[i], Color.WHITE);
-		}
-		
-		whiteConnectors = new boolean[15];
-		redConnectors = new boolean[15];
-		blueConnectors = new boolean[15];
-		
-		Arrays.fill(whiteConnectors, true);
-		Arrays.fill(redConnectors, false);
-		Arrays.fill(blueConnectors, false);
-		
-		for(int i = 1; i <= 5; ++i)
-		{
-			for(int j = 1; j <= 6 - i; ++j)
-			{
-				if(i  <= j) connectors.add(new Connector(i,j));
-			}
-		}
+		_state = new char[6][6];
+		for(int i = 0; i < 6; ++i)
+			for(int j = 0; j < 6; ++j)
+				if(i != j) _state[i][j] = Board.WHITE;
 	}
 	
 	// Add the given connector with the given color to the board.
 	// Unchecked precondition: the given connector is not already chosen 
 	// as RED or BLUE.
 	public void add (Connector cnctr, Color c) {
+		char paint = this.ColorToChar(c);
+		
+		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = paint;
+		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = paint;
 	}
 	
 	// Set up an iterator through the connectors of the given color, 
@@ -50,7 +46,7 @@ public class Board {
 	// No connector should appear twice in the iteration.  
 	public java.util.Iterator<Connector> connectors (Color c)
 	{
-		return new Iterator(_state, c);
+		return new Iterator(_state, this.ColorToChar(c));
 	}
 	
 	// Set up an iterator through all the 15 connectors.
@@ -63,8 +59,13 @@ public class Board {
 	// Return the color of the given connector.
 	// If the connector is colored, its color will be RED or BLUE;
 	// otherwise, its color is WHITE.
-	public Color colorOf (Connector e)
-	{
+	public Color colorOf (Connector e) {
+		if (_state[e.endPt1() - 1][e.endPt2() - 1] == 'r')
+			return Color.RED;
+		else if (_state[e.endPt1() - 1][e.endPt2() - 1] == 'b')
+			return Color.BLUE;
+		else
+			return Color.WHITE;
 	}
 	
 	// Unchecked prerequisite: cnctr is an initialized uncolored connector.
@@ -75,6 +76,22 @@ public class Board {
 		// You fill this in.
 		return false;
 	}
+
+	private char ColorToChar(Color c)
+	{
+		if (c.equals(Color.RED))
+			return Board.RED;
+		else if (c.equals(Color.BLUE))
+			return Board.BLUE;
+		return Board.WHITE;
+	}
+	
+	
+	/*
+	 * Negascout stuff
+	 */ 
+	
+	
 	
 	// The computer (playing BLUE) wants a move to make.
 	// The board is assumed to contain an uncolored connector, with no 
@@ -85,7 +102,8 @@ public class Board {
 	// If each uncolored connector, colored BLUE, would form a BLUE triangle,
 	// return any uncolored connector.
 	public Connector choice ( ) {
-		// You fill this in.
+		State s = new State(_state, 'r');
+		
 		return null;
 	}
 

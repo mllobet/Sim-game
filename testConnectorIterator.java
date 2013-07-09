@@ -44,6 +44,7 @@ public class testConnectorIterator
 		Board.Iterator it = new Board.Iterator(_matrix);
 		while (it.hasNext())
 		{
+			it.next();
 			count++;
 		}
 		assertEquals(15, count);
