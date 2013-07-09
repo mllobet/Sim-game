@@ -37,10 +37,18 @@ public class Connector {
 	// 1 and 6, inclusive; moreover, the endpoints aren't identical.
 	// If the contents of the given string is correctly formatted,
 	// return the corresponding connector.  Otherwise, throw IllegalFormatException.
+<<<<<<< HEAD
 	public static Connector toConnector (String s) throws IllegalFormatException {
 		if(s == null) 
 			throw new IllegalFormatException("Null string");
 		else if(s.length() <= 1) 
+=======
+	public static Connector toConnector (String s) throws IllegalFormatException
+	{
+		if (s == null) 
+			throw new IllegalFormatException("Null string");
+		else if (s.length() <= 1) 
+>>>>>>> a654bb77938ef03f5aa48e9106fa1ca00965bbc7
 			throw new IllegalFormatException("String with length <= 1");
 
 		int p1, p2;
@@ -50,7 +58,7 @@ public class Connector {
 		int i, numcount;
 		i = numcount = 0;
 
-		while(i < s.length())
+		while (i < s.length())
 		{
 			if(Character.isWhitespace(s.charAt(i)))
 				if(found_number) 
@@ -69,7 +77,8 @@ public class Connector {
 					}
 					else if(numcount == 2) 
 					{
-						p2 = s.charAt(i) - '0'; found_number = false;
+						p2 = s.charAt(i) - '0';
+						found_number = false;
 					}
 					else 
 						throw new IllegalFormatException("More than 2 endpoints found"); //more than 2 endpoints
@@ -77,6 +86,7 @@ public class Connector {
 			}
 			++i;
 		}
+
 
 		if(p1 != p2) 
 			return new Connector(p1,p2);
