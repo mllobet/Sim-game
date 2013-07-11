@@ -11,6 +11,7 @@ public class Board {
 	private static final char RED = 'r';
 	private static final char BLUE = 'b';
 	private static final char WHITE = 'w';
+	private static final char PLAYER = 'b';
 
 	private char[][] _state; 
 
@@ -18,9 +19,13 @@ public class Board {
 	{
 		char[][] state;
 		char player;
-		public Position(char[][] s, char col){
+		int[] redDeg;
+		int[] blueDeg;
+		public Position(char[][] s, char col, int[] redDeg, int[] blueDeg){
 			state = s;
 			player = col;
+			this.redDeg = redDeg;
+			this.blueDeg = blueDeg;
 		}
 	}
 
@@ -62,9 +67,9 @@ public class Board {
 	// If the connector is colored, its color will be RED or BLUE;
 	// otherwise, its color is WHITE.
 	public Color colorOf (Connector e) {
-		if (_state[e.endPt1() - 1][e.endPt2() - 1] == 'r')
+		if (_state[e.endPt1() - 1][e.endPt2() - 1] == RED)
 			return Color.RED;
-		else if (_state[e.endPt1() - 1][e.endPt2() - 1] == 'b')
+		else if (_state[e.endPt1() - 1][e.endPt2() - 1] == BLUE)
 			return Color.BLUE;
 		else
 			return Color.WHITE;
@@ -74,21 +79,25 @@ public class Board {
 	// Let its endpoints be p1 and p2.
 	// Return true exactly when there is a point p3 such that p1 is adjacent
 	// to p3 and p2 is adjacent to p3 and those connectors have color c.
-	public boolean formsTriangle (Connector cnctr, Color c) 
+	public boolean formsTriangle (char[][] state, Connector cnctr, Color c) 
 	{		
-		if (_state[cnctr.endPt1()][cnctr.endPt2()] != 'w')
+		if (state[cnctr.endPt1()][cnctr.endPt2()] != WHITE)
 		{
 			throw new IllegalFormatException("Invalid connector");
 		}
 		
-		char color = (Color.red.equals(c) ? 'r' : 'b');
+		char color = (Color.RED.equals(c) ? RED : BLUE);
 		
 		for(int i = 0; i < 6; ++i)
-			if(_state[cnctr.endPt1() - 1][i] == color && i != cnctr.endPt2() - 1)
-				if(_state[cnctr.endPt2() - 1][i] == color) 
+			if(state[cnctr.endPt1() - 1][i] == color && i != cnctr.endPt2() - 1)
+				if(state[cnctr.endPt2() - 1][i] == color) 
 					return true;
-			
+		
 		return false;
+	}
+	
+	public boolean formsTriangle(Connector cnctr, Color c){
+		return formsTriangle(_state,cnctr,c);
 	}
 
 	private char ColorToChar(Color c)
@@ -108,12 +117,22 @@ public class Board {
 	private void doMove(Connector c, Position p) {
 		p.state[c.endPt1() - 1][c.endPt2() - 1] = p.player;
 		p.state[c.endPt2() - 1][c.endPt1() - 1] = p.player;
+		
+		if(p.player == RED)
+			++p.redDeg[c.endPt1() - 1];
+		else
+			++p.redDeg[c.endPt2() - 1];
 	}
 
 	// Undoes a move in a current position
 	private void undoMove(Connector c, Position p) {
-		p.state[c.endPt1() - 1][c.endPt2() - 1] = 'w';
-		p.state[c.endPt2() - 1][c.endPt1() - 1] = 'w';
+		p.state[c.endPt1() - 1][c.endPt2() - 1] = WHITE;
+		p.state[c.endPt2() - 1][c.endPt1() - 1] = WHITE;
+		
+		if(p.player == RED)
+			--p.redDeg[c.endPt1() - 1];
+		else
+			--p.redDeg[c.endPt2() - 1];
 	}
 
 	// Gets all the possible moves in a given position
@@ -122,10 +141,10 @@ public class Board {
 		return new Iterator(p.state, WHITE);
 	}
 
-	// Evaluates if the position is good for the player in the position p, priorizes speed over correctness.
+	// Evaluates if the position is good for the PLAYER, priorizes speed over correctness.
 	// Returns positive or negative value, wether or not it is good for the player at the current position.
 	private void evaluate(Position p) {
-
+		
 	}
 
 
