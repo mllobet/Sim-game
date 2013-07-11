@@ -13,6 +13,7 @@ public class Board {
 	private static final char WHITE = 'w';
 
 	private char[][] _state; 
+        private int[][]  _zobrist;
 
 	class Position
 	{
@@ -27,16 +28,22 @@ public class Board {
 	// Initialize an empty board with no colored edges.
 	public Board ( ) {
 		_state = new char[6][6];
+                _zobrist = new int[6][12];
+                Random generator = new Random();
 		for(int i = 0; i < 6; ++i)
 			for(int j = 0; j < 6; ++j)
+                        {
 				if(i != j) _state[i][j] = Board.WHITE;
+                                _zobrist[i][j] = generator.nextInt();
+                                _zobrist[i][12 - j - 1] = generator.nextInt();
+                        }
 	}
 
 	// Add the given connector with the given color to the board.
 	// Unchecked precondition: the given connector is not already chosen 
 	// as RED or BLUE.
 	public void add (Connector cnctr, Color c) {
-		char paint = this.ColorToChar(c);
+		char paint = this.colorToChar(c);
 
 		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = paint;
 		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = paint;
@@ -48,7 +55,7 @@ public class Board {
 	// No connector should appear twice in the iteration.  
 	public java.util.Iterator<Connector> connectors (Color c)
 	{
-		return new Iterator(_state, this.ColorToChar(c));
+		return new Iterator(_state, this.colorToChar(c));
 	}
 
 	// Set up an iterator through all the 15 connectors.
@@ -91,7 +98,7 @@ public class Board {
 		return false;
 	}
 
-	private char ColorToChar(Color c)
+	private char colorToChar(Color c)
 	{
 		if (c.equals(Color.RED))
 			return Board.RED;
@@ -99,6 +106,17 @@ public class Board {
 			return Board.BLUE;
 		return Board.WHITE;
 	}
+
+        private int hashKey(Connector c)
+        {
+                int key = 0;
+                for (int i = 0; i < 6; ++i)
+                {
+                        if (_state[c.endPt1() - 1][c.endPt2() - 1] != Board.WHITE)
+                                key ^= _zobrist[i][c.endPt1() + c.endPt2()];
+                }
+                return key;
+        }
 
 	/*
 	 * Negascout stuff
