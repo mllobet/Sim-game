@@ -20,11 +20,7 @@ public class Board {
 		LB = new HashSet<Connector>(15);
 		LRB = new HashSet<Connector>(15);
 		F = new HashSet<Connector>(15);
-		
-		
-		
-		
-		
+			
 		
 		for(int i = 1; i <= 5; ++i)
 		{
@@ -40,7 +36,13 @@ public class Board {
 	// as RED or BLUE.
 	public void add (Connector cnctr, Color c) 
 	{
-
+		if (R.contains(cnctr) || B.contains(cnctr))
+			throw new IllegalArgumentException("conector is already in the board");
+		
+		if (c.equals(Color.RED))
+			R.add(cnctr);
+		else
+			B.add(cnctr);
 	}
 
 	// Set up an iterator through the connectors of the given color, 
@@ -49,37 +51,32 @@ public class Board {
 	// No connector should appear twice in the iteration.  
 	public java.util.Iterator<Connector> connectors (Color c)
 	{
-		return new Iterator(_state, c);
+		if (c.equals(Color.RED))
+			return R.iterator();
+		else if (c.equals(Color.BLUE))
+			return B.iterator();
+		else
+			return F.iterator();		
 	}
 
+	//TODO: ITERATOR OF ITERATORS, GET ITERATORS FROM THE SETS
 	// Set up an iterator through all the 15 connectors.
 	// No connector should appear twice in the iteration.  
 	public java.util.Iterator<Connector> connectors ( )
 	{
-		return new Iterator(_state);
+		return null;
 	}
 
 	// Return the color of the given connector.
 	// If the connector is colored, its color will be RED or BLUE;
 	// otherwise, its color is WHITE.
 	public Color colorOf (Connector e) {
-		return _state[e.endPt1() - 1][e.endPt2() - 1];
-	}
-
-
-	public boolean formsTriangle (Color[][] state, Connector cnctr, Color c) 
-	{		
-		if (! state[cnctr.endPt1() - 1][cnctr.endPt2() - 1].equals(Color.WHITE))
-		{
-			throw new IllegalFormatException("Invalid connector");
-		}
-
-		for(int i = 0; i < 6; ++i)
-			if(state[cnctr.endPt1() - 1][i].equals(c) && i != cnctr.endPt2() - 1)
-				if(state[cnctr.endPt2() - 1][i].equals(c)) 
-					return true;
-
-		return false;
+		if (R.contains(e))
+			return Color.RED;
+		else if (B.contains(e))
+			return Color.BLUE;
+		else
+			return Color.WHITE;
 	}
 
 	// Unchecked prerequisite: cnctr is an initialized uncolored connector.
@@ -87,7 +84,18 @@ public class Board {
 	// Return true exactly when there is a point p3 such that p1 is adjacent
 	// to p3 and p2 is adjacent to p3 and those connectors have color c.
 	public boolean formsTriangle(Connector cnctr, Color c){
-		return formsTriangle(_state,cnctr,c);
+		if(cnctr == null)
+			throw new IllegalArgumentException("null Connector");
+		
+		boolean triangle = false;
+		if(c.equals(Color.RED))
+		{
+		
+		}
+		else 
+		{
+			
+		}
 	}
 
 
