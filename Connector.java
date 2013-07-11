@@ -55,8 +55,12 @@ public class Connector {
 		while (i < s.length())
 		{
 			if(Character.isWhitespace(s.charAt(i)))
+			{
 				if(found_number) 
+				{
 					throw new IllegalFormatException("Whitespace between endpoints");
+				}
+			}
 			else
 			{
 				if(s.charAt(i) < '1' || s.charAt(i) > '6') 
