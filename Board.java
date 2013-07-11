@@ -44,13 +44,11 @@ public class Board {
 			R.add(cnctr);
 		else
 			B.add(cnctr);
-		
+
 		//UPDATE LR, LB and LRB
-		
-		List<Connector> LRlist ;
-		List<Connector> LBlist;
-		List<Connector> LRBlist;
-		
+
+		LinkedList<Connector> removeList = new LinkedList<Connector>();
+
 		Iterator<Connector> iter = F.iterator();
 		while (iter.hasNext())
 		{
@@ -58,19 +56,23 @@ public class Board {
 			Connector check = iter.next();
 			redT = formsTriangle(check,Color.RED);
 			blueT = formsTriangle(check,Color.BLUE);
-			
+
 			if (redT && blueT)
-				LRBlist.add(check);
+				LRB.add(check);
 			else if (redT)
-				LRlist.add(check);
+				LR.add(check);
 			else if (blueT)
-				LBlist.add(check);
+				LB.add(check);
+			
+			if (redT || blueT)
+				removeList.add(check);
 		}
 		
-		
-		
-		
-		
+		for(Connector cn : removeList)
+		{
+			F.remove(cn);
+		}
+
 	}
 
 	// Set up an iterator through the connectors of the given color, 
@@ -87,12 +89,15 @@ public class Board {
 			return F.iterator();		
 	}
 
-	//TODO: ITERATOR OF ITERATORS, GET ITERATORS FROM THE SETS
 	// Set up an iterator through all the 15 connectors.
 	// No connector should appear twice in the iteration.  
 	public java.util.Iterator<Connector> connectors ( )
 	{
-		return null;
+		IteratorOfIterators it = new IteratorOfIterators();
+		it.concat(R.iterator());
+		it.concat(B.iterator());
+		it.concat(F.iterator());
+		return it;
 	}
 
 	// Return the color of the given connector.
@@ -154,5 +159,43 @@ public class Board {
 		return true;
 	}
 
+	public static class IteratorOfIterators implements Iterator<Connector>
+	{
+		private List<Iterator<Connector>> _iterators;
+		private int _idx;
 
+		public IteratorOfIterators()
+		{
+			_iterators = new ArrayList<Iterator<Connector>>();
+			_idx = 0;
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			int idx = _idx;
+			while (idx < _iterators.size() && _iterators.get(idx).hasNext() == false)
+				idx++;
+			return idx < _iterators.size() && _iterators.get(idx).hasNext();
+		}
+
+		@Override
+		public Connector next()
+		{
+			while (_iterators.get(_idx).hasNext() == false)
+				_idx++;
+			return _iterators.get(_idx).next();
+		}
+
+		@Override
+		public void remove()
+		{
+			// throw new RuntimeException("Method remove is not implemented and should not be used");
+		}
+
+		public void concat(Iterator<Connector> it)
+		{
+			_iterators.add(it);
+		}
+	}
 }
