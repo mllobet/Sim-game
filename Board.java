@@ -15,6 +15,11 @@ public class Board {
 	// Initialize an empty board with no colored edges.
 	public Board ( ) {
 		R = new HashSet<Connector>(15);
+		B = new HashSet<Connector>(15);
+		LR = new HashSet<Connector>(15);
+		LB = new HashSet<Connector>(15);
+		LRB = new HashSet<Connector>(15);
+		F = new HashSet<Connector>(15);
 		
 		
 		
