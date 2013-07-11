@@ -20,8 +20,7 @@ public class Board {
 		LB = new HashSet<Connector>(15);
 		LRB = new HashSet<Connector>(15);
 		F = new HashSet<Connector>(15);
-			
-		
+
 		for(int i = 1; i <= 5; ++i)
 		{
 			for(int j = 1; j <= 6 - i; ++j)
@@ -63,11 +62,7 @@ public class Board {
 	// No connector should appear twice in the iteration.  
 	public java.util.Iterator<Connector> connectors ( )
 	{
-		IteratorOfIterators it = new IteratorOfIterators();
-		it.concat(R.iterator());
-		it.concat(B.iterator());
-		it.concat(F.iterator());
-		return it;
+		return new IteratorOfIterators(R.iterator(), B.iterator(), F.iterator());
 	}
 
 	// Return the color of the given connector.
@@ -138,6 +133,12 @@ public class Board {
 		public IteratorOfIterators()
 		{
 			_iterators = new ArrayList<Iterator<Connector>>();
+			_idx = 0;
+		}
+		
+		public IteratorOfIterators(Iterator<Connector>... iterators)
+		{
+			_iterators = Arrays.asList(iterators);
 			_idx = 0;
 		}
 		
