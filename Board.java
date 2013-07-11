@@ -20,8 +20,8 @@ public class Board {
 		LB = new HashSet<Connector>(15);
 		LRB = new HashSet<Connector>(15);
 		F = new HashSet<Connector>(15);
-			
-		
+
+
 		for(int i = 1; i <= 5; ++i)
 		{
 			for(int j = 1; j <= 6 - i; ++j)
@@ -38,11 +38,39 @@ public class Board {
 	{
 		if (R.contains(cnctr) || B.contains(cnctr))
 			throw new IllegalArgumentException("conector is already in the board");
-		
+
+		//UPDATE R or B SETS
 		if (c.equals(Color.RED))
 			R.add(cnctr);
 		else
 			B.add(cnctr);
+		
+		//UPDATE LR, LB and LRB
+		
+		List<Connector> LRlist ;
+		List<Connector> LBlist;
+		List<Connector> LRBlist;
+		
+		Iterator<Connector> iter = F.iterator();
+		while (iter.hasNext())
+		{
+			boolean redT, blueT;
+			Connector check = iter.next();
+			redT = formsTriangle(check,Color.RED);
+			blueT = formsTriangle(check,Color.BLUE);
+			
+			if (redT && blueT)
+				LRBlist.add(check);
+			else if (redT)
+				LRlist.add(check);
+			else if (blueT)
+				LBlist.add(check);
+		}
+		
+		
+		
+		
+		
 	}
 
 	// Set up an iterator through the connectors of the given color, 
@@ -86,22 +114,21 @@ public class Board {
 	public boolean formsTriangle(Connector cnctr, Color c){
 		if(cnctr == null)
 			throw new IllegalArgumentException("null Connector");
-		
+
 		boolean triangle = false;
 		if(c.equals(Color.RED))
 		{
-		
+			int i = 1;
+			while(i <= 6 && !triangle)
+			{
+				//triangle = R.
+			}
 		}
 		else 
 		{
-			
+
 		}
 	}
-
-
-
-
-
 
 	// The computer (playing BLUE) wants a move to make.
 	// The board is assumed to contain an uncolored connector, with no 
@@ -127,78 +154,5 @@ public class Board {
 		return true;
 	}
 
-	public static class Iterator implements java.util.Iterator<Connector>
-	{
-		public static final char NULL_COLOR = '\0';
 
-		private Color     _color;
-		private Color[][] _matrix;
-		private int      _x;
-		private int      _y;
-
-		public Iterator(Color[][] matrix, Color color)
-		{
-			_color = color;
-			_matrix = matrix;
-			_y = 0;
-			_x = 0;
-		}
-
-		public Iterator(Color[][] matrix)
-		{
-			_color = null;
-			_matrix = matrix;
-			_y = 0;
-			_x = 1;
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			int y = _y;
-			int x = _x;
-			while (y < 6)
-			{
-				while (x < 6)
-				{
-					if (_color == null || _color.equals(_matrix[y][x]))
-						return true;
-					x++;
-				}
-				++y;
-				x = y + 1;
-			}
-			return false;
-		}
-
-		@Override
-		public Connector next()
-		{
-			advance();
-			return new Connector(++_x, _y + 1);
-		}
-
-
-
-		public void advance()
-		{
-			while (_y < 6)
-			{
-				while (_x < 6)
-				{
-					if (_color == Iterator.NULL_COLOR || _color == _matrix[_y][_x])
-						return;
-					_x++;
-				}
-				++_y;
-				_x = _y + 1;
-			}
-		}
-
-		@Override
-		public void remove()
-		{
-			// throw new RuntimeException("Method remove is not implemented and should not be used");
-		}	
-	}
 }
