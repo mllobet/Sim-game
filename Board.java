@@ -1,10 +1,13 @@
 import java.awt.Color;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Board {
 
 	public static boolean iAmDebugging = true;
 
+	private Color _state[][];
+	
 	HashSet<Connector> R; 
 	HashSet<Connector> B;
 	HashSet<Connector> LR;
@@ -21,11 +24,15 @@ public class Board {
 		LRB = new HashSet<Connector>(15);
 		F = new HashSet<Connector>(15);
 
+		_state = new Color[6][6];
+		
 		for(int i = 1; i <= 5; ++i)
 		{
+			Arrays.fill(_state[i], Color.WHITE);
 			for(int j = 1; j <= 6 - i; ++j)
 			{
-				if(i  <= j) F.add(new Connector(i,j));
+				if(i <= j)
+					F.add(new Connector(i,j));
 			}
 		}
 	}
@@ -42,6 +49,8 @@ public class Board {
 			R.add(cnctr);
 		else
 			B.add(cnctr);
+		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = c;
+		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = c;
 	}
 
 	// Set up an iterator through the connectors of the given color, 
@@ -81,25 +90,15 @@ public class Board {
 	// Let its endpoints be p1 and p2.
 	// Return true exactly when there is a point p3 such that p1 is adjacent
 	// to p3 and p2 is adjacent to p3 and those connectors have color c.
-	public boolean formsTriangle(Connector cnctr, Color c){
+	public boolean formsTriangle(Connector cnctr, Color c)
+	{
 		if(cnctr == null)
 			throw new IllegalArgumentException("null Connector");
-		
-		boolean triangle = false;
-		if(c.equals(Color.RED))
-		{
-		
-		}
-		else 
-		{
-			
-		}
+		for (int i = 0; i < 6; ++i)
+			if (_state[cnctr.endPt1() - 1][i] == c && _state[cnctr.endPt2() - 1][i] == c)
+					return true;
+		return false;
 	}
-
-
-
-
-
 
 	// The computer (playing BLUE) wants a move to make.
 	// The board is assumed to contain an uncolored connector, with no 
