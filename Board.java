@@ -4,16 +4,19 @@ import java.util.*;
 public class Board {
 
 	public static boolean iAmDebugging = true;
+	private boolean starting;
 
-	HashSet<Connector> R; 
-	HashSet<Connector> B;
-	HashSet<Connector> LR;
-	HashSet<Connector> LB;
-	HashSet<Connector> LRB;
-	HashSet<Connector> F;
+	private HashSet<Connector> R; 
+	private HashSet<Connector> B;
+	private HashSet<Connector> LR;
+	private HashSet<Connector> LB;
+	private HashSet<Connector> LRB;
+	private HashSet<Connector> F;
 
 	// Initialize an empty board with no colored edges.
 	public Board ( ) {
+		starting = true;
+
 		R = new HashSet<Connector>(15);
 		B = new HashSet<Connector>(15);
 		LR = new HashSet<Connector>(15);
@@ -21,10 +24,6 @@ public class Board {
 		LRB = new HashSet<Connector>(15);
 		F = new HashSet<Connector>(15);
 
-		<<<<<<< HEAD
-
-		=======
-		>>>>>>> 19db4d23f373531a1661a135e780069dda418791
 		for(int i = 1; i <= 5; ++i)
 		{
 			for(int j = 1; j <= 6 - i; ++j)
@@ -133,6 +132,8 @@ public class Board {
 
 		}
 	}
+	
+	// Choices & Rules part:
 
 	// The computer (playing BLUE) wants a move to make.
 	// The board is assumed to contain an uncolored connector, with no 
@@ -143,8 +144,42 @@ public class Board {
 	// If each uncolored connector, colored BLUE, would form a BLUE triangle,
 	// return any uncolored connector.
 	public Connector choice ( ) {
-		//State s = new State(_state, 'r');
+		if (starting)
+		{	//Rule 1:
+			if(!R.contains(new Connector(1, 2)))
+				return new Connector(1,2);	
+			else
+				return new Connector(2,3);
+		}
+		else
+		{
+			Iterator<Connector> iter = F.iterator();
 
+			//Rule 2:
+			if(iter != null && iter.hasNext())
+			{
+				return applyRules(iter);
+			}
+			//Rule 3:
+			else
+			{
+				iter = LR.iterator();
+				if(iter != null && iter.hasNext())
+				{
+					return applyRules(iter);
+				}
+				else
+				{
+					throw new IllegalArgumentException("WE ARE DOOMED");
+				}
+			}
+		}
+	}
+	
+	// Apply all the rules on a given set of iterators
+	
+	private Connector applyRules(Iterator<Connector> iter)
+	{
 		return null;
 	}
 
