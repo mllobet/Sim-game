@@ -57,7 +57,16 @@ public class Board {
 			B.add(cnctr);
 
 		System.out.println("Size before: " + F.size());
-		F.remove(cnctr);
+		
+		if (F.contains(cnctr))
+			F.remove(cnctr);
+		else if (LR.contains(cnctr))
+			LR.remove(cnctr);
+		else if (LB.contains(cnctr))
+			LB.remove(cnctr);
+		else
+			LRB.remove(cnctr);
+		
 		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = c;
 		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = c;
 
