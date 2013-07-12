@@ -7,7 +7,7 @@ public class Board {
 	public static boolean iAmDebugging = true;
 	private boolean starting;
 
-	private Color _state[][];
+	protected Color _state[][];
 
 	private HashSet<Connector> R; 
 	private HashSet<Connector> B;
@@ -188,7 +188,7 @@ public class Board {
 	{
 		for (Functor rule : _rules)
 		{
-			List<Connector> result = rule.Execute(iter);
+			List<Connector> result = rule.Execute(iter, this);
 			if (result.size() == 1)
 				return result.get(0);
 			iter = result.iterator();
@@ -277,17 +277,26 @@ public class Board {
 		}
 	}	
 
-	public interface Functor
+
+	private interface Functor
+
 	{
-		public List<Connector> Execute(Iterator<Connector> iter);
+		public List<Connector> Execute(Iterator<Connector> iter, Board board);
 	}
 
-	public class Rule1 implements Functor
+	private class Rule1 implements Functor
 	{
 		@Override
-		public List<Connector> Execute(Iterator<Connector> iter)
+		public List<Connector> Execute(Iterator<Connector> iter, Board board)
 		{
-			return null;
+			List<Connector> target = new ArrayList<Connector>();
+			while (iter.hasNext())
+			{
+				Connector cnctr = iter.next();
+				if (!board.formsTriangle(cnctr, Color.RED))
+					target.add(cnctr);
+			}
+			return target;
 		}
 
 	}
@@ -295,7 +304,7 @@ public class Board {
 	public class Rule2 implements Functor
 	{
 		@Override
-		public List<Connector> Execute(Iterator<Connector> iter)
+		public List<Connector> Execute(Iterator<Connector> iter, Board board)
 		{
 			int min = Integer.MAX_VALUE;
 			LinkedList<Connector> result = new LinkedList<Connector>();
@@ -308,10 +317,33 @@ public class Board {
 					min = count;
 					result.add(check);
 				}
-					
+
 			}
-			
+
 			return result;
 		}
+	}
+
+	private class Rule3 implements Functor
+	{
+		@Override
+		public List<Connector> Execute(Iterator<Connector> iter, Board board)
+		{
+			List<Connector> target = new ArrayList<Connector>();
+			while (iter.hasNext())
+			{
+				Connector cnctr = iter.next();
+				for (int i = 0; i < 6; ++i)
+				{
+					if (board._state[cnctr.endPt1() - 1][i] == Color.BLUE || board._state[cnctr.endPt2() - 1][i] == Color.BLUE)
+					{
+						target.add(cnctr);
+						break;
+					}
+				}
+			}
+			return target;
+		}
+
 	}
 }
