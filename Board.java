@@ -17,7 +17,7 @@ public class Board {
 	private HashSet<Connector> F;
 
 	private final Functor[] _rules = {
-			new Rule1(),new Rule2(), new Rule3(), new Rule4(), new Rule5()
+			new Rule1(),new Rule2(), new Rule3(), new Rule4(), new Rule5(), new Rule6()
 	};
 
 
