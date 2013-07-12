@@ -17,7 +17,7 @@ public class Board {
 	private HashSet<Connector> F;
 
 	private final Functor[] _rules = {
-			new Rule1(),
+			new Rule1(),new Rule2(), new Rule3(), new Rule4(), new Rule5()
 	};
 
 
@@ -37,11 +37,8 @@ public class Board {
 		for(int i = 1; i <= 5; ++i)
 		{
 			Arrays.fill(_state[i], Color.WHITE);
-			for(int j = 1; j <= 6 - i; ++j)
-			{
-				if(i <= j)
-					F.add(new Connector(i,j));
-			}
+			for(int j = i + 1; j <= 6; ++j)
+				F.add(new Connector(i,j));
 		}
 	}
 
@@ -51,7 +48,7 @@ public class Board {
 	public void add (Connector cnctr, Color c) 
 	{
 		if (R.contains(cnctr) || B.contains(cnctr))
-			throw new IllegalArgumentException("conector is already in the board");
+			throw new IllegalArgumentException("connector is already in the board");
 
 		//UPDATE R or B SETS
 		if (c.equals(Color.RED))
@@ -59,6 +56,8 @@ public class Board {
 		else
 			B.add(cnctr);
 
+		System.out.println("Size before: " + F.size());
+		F.remove(cnctr);
 		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = c;
 		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = c;
 
@@ -67,6 +66,7 @@ public class Board {
 		LinkedList<Connector> removeList = new LinkedList<Connector>();
 
 		Iterator<Connector> iter = F.iterator();
+
 		while (iter.hasNext())
 		{
 			boolean redT, blueT;
@@ -82,8 +82,12 @@ public class Board {
 				LB.add(check);
 
 			if (redT || blueT)
-				removeList.add(check);
+			{
+				//removeList.add(check);
+				iter.remove();
+			}
 		}
+		System.out.println("Size after: " + F.size());
 
 		for(Connector cn : removeList)
 		{
@@ -149,14 +153,13 @@ public class Board {
 	// If each uncolored connector, colored BLUE, would form a BLUE triangle,
 	// return any uncolored connector.
 	public Connector choice ( ) {
+		System.out.println("Choice");
 		if (starting)
 		{	
 			starting = false;
 			//Rule 1:
-			if(!R.contains(new Connector(1, 2)))
-				return new Connector(3,4);	
-			else
-				return new Connector(2,3);
+			Iterator<Connector> iter = F.iterator();
+			return iter.next();
 		}
 		else
 		{
@@ -186,25 +189,75 @@ public class Board {
 	// Apply all the rules on a given set of iterators
 	private Connector applyRules(Iterator<Connector> iter)
 	{
+		List<Connector> result = null;
 		for (Functor rule : _rules)
 		{
-			List<Connector> result = rule.Execute(iter, this);
+			result = rule.Execute(iter, this);
 			if (result.size() == 1)
 				return result.get(0);
 			iter = result.iterator();
 		}
-		throw new IllegalStateException("No move found !");
+		return result.get(0);
+		//throw new IllegalStateException("No move found !");
 	}
 
-	// Returns whether or not a connector is red (painted red or dotted red
+	// Returns whether or not a connector is red (painted red or dotted red)
 	private boolean isRed(Connector c)
 	{
 		return R.contains(c) || LR.contains(c);
 	}
 
+	private boolean isTrueRed(Connector c)
+	{
+		return R.contains(c);
+	}
+
+	// Returns whether or not a connector is dotted red
+	private boolean isDottedRed(Connector c)
+	{
+		return LR.contains(c);
+	}
+
+	// Returns whether or not a connector is BLue (painted blue or dotted blue or dotted red-blue
+	private boolean isBlue(Connector c)
+	{
+		return B.contains(c) || LB.contains(c) || LRB.contains(c);
+	}
+
 	private boolean isNeutral(Connector c)
 	{
 		return F.contains(c);
+	}
+
+	// Returns how many triangles it creates
+	private int countTriangles(Connector cnctr, Color c)
+	{
+		int count = 0;
+		if(cnctr == null)
+			throw new IllegalArgumentException("null Connector");
+		for (int i = 0; i < 6; ++i)
+			if (_state[cnctr.endPt1() - 1][i] == c && _state[cnctr.endPt2() - 1][i] == c)
+				++count;
+		return count;
+	}
+
+	private int countHypSafe(Connector c)
+	{
+		int count = 0;
+		for(int i = 1; i <= 6; ++i)
+		{
+			if(c.endPt1() != i && c.endPt2() != i)
+			{
+				Connector c1 = new Connector(c.endPt1(), i);
+				Connector c2 = new Connector(c.endPt2(), i);
+				if ((isRed(c1)^isRed(c2) && (isDottedRed(c1)^isDottedRed(c2)))) 
+				{
+					++count;
+				}
+			}
+		}
+
+		return count;
 	}
 
 	// Returns how many loser triangles it creates
@@ -218,6 +271,66 @@ public class Board {
 				Connector c1 = new Connector(c.endPt1(), i);
 				Connector c2 = new Connector(c.endPt2(), i);
 				if ((isRed(c1)^isRed(c2) && (isNeutral(c1)^isNeutral(c2)))) 
+				{
+					++count;
+				}
+			}
+		}
+
+		return count;
+	}
+
+	// Returns how many loser triangles it creates
+	private int countValidLosers(Connector c)
+	{
+		int count = 0;
+		for(int i = 1; i <= 6; ++i)
+		{
+			if(c.endPt1() != i && c.endPt2() != i)
+			{
+				Connector c1 = new Connector(c.endPt1(), i);
+				Connector c2 = new Connector(c.endPt2(), i);
+				if ((isTrueRed(c1)^isTrueRed(c2) && (isNeutral(c1)^isNeutral(c2)))) 
+				{
+					++count;
+				}
+			}
+		}
+
+		return count;
+	}
+
+	// Returns how many loser triangles it creates
+	private int countMixedT(Connector c)
+	{
+		int count = 0;
+		for(int i = 1; i <= 6; ++i)
+		{
+			if(c.endPt1() != i && c.endPt2() != i)
+			{
+				Connector c1 = new Connector(c.endPt1(), i);
+				Connector c2 = new Connector(c.endPt2(), i);
+				if ( (isRed(c1)^isRed(c2) && (isBlue(c1)^isBlue(c2))) || isBlue(c1) && isBlue(c2)) 
+				{
+					++count;
+				}
+			}
+		}
+
+		return count;
+	}
+
+	// Returns how many loser triangles it creates
+	private int countPartialMixedT(Connector c)
+	{
+		int count = 0;
+		for(int i = 1; i <= 6; ++i)
+		{
+			if(c.endPt1() != i && c.endPt2() != i)
+			{
+				Connector c1 = new Connector(c.endPt1(), i);
+				Connector c2 = new Connector(c.endPt2(), i);
+				if ( (isRed(c1)^isRed(c2) && isNeutral(c1)^isNeutral(c2)))
 				{
 					++count;
 				}
@@ -289,14 +402,26 @@ public class Board {
 		@Override
 		public List<Connector> Execute(Iterator<Connector> iter, Board board)
 		{
-			List<Connector> target = new ArrayList<Connector>();
+			int min = Integer.MAX_VALUE;
+			List<Connector> result = new ArrayList<Connector>();
 			while (iter.hasNext())
 			{
-				Connector cnctr = iter.next();
-				if (!board.formsTriangle(cnctr, Color.RED))
-					target.add(cnctr);
+				Connector check = iter.next();
+				int count = countTriangles(check, Color.BLUE);
+				if (count == min)
+				{
+					result.add(check);
+				}
+				if (count < min)
+				{
+					min = count;
+					result.clear();
+					result.add(check);
+				}
+
+
 			}
-			return target;
+			return result;
 		}
 
 	}
@@ -312,9 +437,14 @@ public class Board {
 			{
 				Connector check = iter.next();
 				int count = countLosers(check);
-				if (count <= min)
+				if (count == min)
+				{
+					result.add(check);
+				}
+				if (count < min)
 				{
 					min = count;
+					result.clear();
 					result.add(check);
 				}
 
@@ -329,21 +459,110 @@ public class Board {
 		@Override
 		public List<Connector> Execute(Iterator<Connector> iter, Board board)
 		{
-			List<Connector> target = new ArrayList<Connector>();
+			int min = Integer.MAX_VALUE;
+			LinkedList<Connector> result = new LinkedList<Connector>();
 			while (iter.hasNext())
 			{
-				Connector cnctr = iter.next();
-				for (int i = 0; i < 6; ++i)
+				Connector check = iter.next();
+				int count = countHypSafe(check);
+				if (count == min)
 				{
-					if (board._state[cnctr.endPt1() - 1][i] == Color.BLUE || board._state[cnctr.endPt2() - 1][i] == Color.BLUE)
-					{
-						target.add(cnctr);
-						break;
-					}
+					result.add(check);
 				}
-			}
-			return target;
-		}
+				if (count < min)
+				{
+					min = count;
+					result.clear();
+					result.add(check);
+				}
 
+			}
+
+			return result;
+		}
+	}
+
+	public class Rule4 implements Functor
+	{
+		@Override
+		public List<Connector> Execute(Iterator<Connector> iter, Board board)
+		{
+			int max = Integer.MIN_VALUE;
+			LinkedList<Connector> result = new LinkedList<Connector>();
+			while (iter.hasNext())
+			{
+				Connector check = iter.next();
+				int count = countMixedT(check);
+				if (count == max)
+				{
+					result.add(check);
+				}
+				if (count > max)
+				{
+					max = count;
+					result.clear();
+					result.add(check);
+				}
+
+			}
+
+			return result;
+		}
+	}
+
+	public class Rule5 implements Functor
+	{
+		@Override
+		public List<Connector> Execute(Iterator<Connector> iter, Board board)
+		{
+			int max = Integer.MIN_VALUE;
+			LinkedList<Connector> result = new LinkedList<Connector>();
+			while (iter.hasNext())
+			{
+				Connector check = iter.next();
+				int count = countPartialMixedT(check);
+				if (count == max)
+				{
+					result.add(check);
+				}
+				if (count > max)
+				{
+					max = count;
+					result.clear();
+					result.add(check);
+				}
+
+			}
+
+			return result;
+		}
+	}
+
+	public class Rule6 implements Functor
+	{
+		@Override
+		public List<Connector> Execute(Iterator<Connector> iter, Board board)
+		{
+			int min = Integer.MAX_VALUE;
+			LinkedList<Connector> result = new LinkedList<Connector>();
+			while (iter.hasNext())
+			{
+				Connector check = iter.next();
+				int count = countValidLosers(check);
+				if (count == min)
+				{
+					result.add(check);
+				}
+				if (count < min)
+				{
+					min = count;
+					result.clear();
+					result.add(check);
+				}
+
+			}
+
+			return result;
+		}
 	}
 }

@@ -32,6 +32,11 @@ public class Connector {
 		return "" + myPoint1 + myPoint2;
 	}
 
+	public int hashCode()
+	{
+		return myPoint1 ^ myPoint2;
+	}
+	
 	// Format of a connector is endPoint1 + endPoint2 (+ means string concatenation),
 	// possibly surrounded by white space. Each endpoint is a digit between
 	// 1 and 6, inclusive; moreover, the endpoints aren't identical.
