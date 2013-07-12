@@ -57,7 +57,7 @@ public class Board {
 			B.add(cnctr);
 
 		System.out.println("Size before: " + F.size());
-		
+
 		if (F.contains(cnctr))
 			F.remove(cnctr);
 		else if (LR.contains(cnctr))
@@ -66,42 +66,69 @@ public class Board {
 			LB.remove(cnctr);
 		else
 			LRB.remove(cnctr);
-		
+
 		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = c;
 		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = c;
 
 		//UPDATE LR, LB and LRB
 
-		LinkedList<Connector> removeList = new LinkedList<Connector>();
+		LinkedList<Connector> l = makeList(F.iterator(), LR.iterator(), LB.iterator(), LRB.iterator());
 
-		Iterator<Connector> iter = F.iterator();
-
-		while (iter.hasNext())
+		while (!l.isEmpty())
 		{
 			boolean redT, blueT;
-			Connector check = iter.next();
+			Connector check = l.remove();
 			redT = formsTriangle(check,Color.RED);
 			blueT = formsTriangle(check,Color.BLUE);
 
 			if (redT && blueT)
-				LRB.add(check);
-			else if (redT)
-				LR.add(check);
-			else if (blueT)
-				LB.add(check);
-
-			if (redT || blueT)
 			{
-				//removeList.add(check);
-				iter.remove();
+				LRB.add(check);
+
+				if (LR.contains(check))
+					LR.remove(check);
+				else if (LB.contains(check))
+					LB.remove(check);
+
+			}
+			else if (redT)
+			{
+				if (!LR.contains(check))
+				{
+					if (LB.contains(check))
+					{
+						LRB.add(check);
+						LB.remove(check);
+					}
+					else
+					{
+						LR.add(check);
+					}
+
+				}
+			}
+			else if (blueT)
+			{
+				if (!LB.contains(check))
+				{
+					if (LR.contains(check))
+					{
+						LRB.add(check);
+						LR.remove(check);
+					}
+					else
+					{
+						LB.add(check);
+					}
+				}
+			}
+
+			if ((redT || blueT) && F.contains(check))
+			{
+				F.remove(check);
 			}
 		}
 		System.out.println("Size after: " + F.size());
-
-		for(Connector cn : removeList)
-		{
-			F.remove(cn);
-		}
 	}
 
 	// Set up an iterator through the connectors of the given color, 
@@ -357,6 +384,18 @@ public class Board {
 	public boolean isOK ( ) {
 		// You fill this in.
 		return true;
+	}
+
+	// Get lists from iterators
+	public static <T> LinkedList<T> makeList(Iterator<T>... iter) {
+		LinkedList<T> copy = new LinkedList<T>();
+		for(Iterator<T> it : iter)
+		{
+			while (it.hasNext())
+				copy.add(it.next());
+		}
+
+		return copy;
 	}
 
 	public static class IteratorOfIterators implements Iterator<Connector>
