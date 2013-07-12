@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Board {
@@ -6,12 +7,15 @@ public class Board {
 	public static boolean iAmDebugging = true;
 	private boolean starting;
 
+	private Color _state[][];
+	
 	private HashSet<Connector> R; 
 	private HashSet<Connector> B;
 	private HashSet<Connector> LR;
 	private HashSet<Connector> LB;
 	private HashSet<Connector> LRB;
 	private HashSet<Connector> F;
+
 
 	// Initialize an empty board with no colored edges.
 	public Board ( ) {
@@ -24,11 +28,15 @@ public class Board {
 		LRB = new HashSet<Connector>(15);
 		F = new HashSet<Connector>(15);
 
+		_state = new Color[6][6];
+
 		for(int i = 1; i <= 5; ++i)
 		{
+			Arrays.fill(_state[i], Color.WHITE);
 			for(int j = 1; j <= 6 - i; ++j)
 			{
-				if(i  <= j) F.add(new Connector(i,j));
+				if(i <= j)
+					F.add(new Connector(i,j));
 			}
 		}
 	}
@@ -46,6 +54,9 @@ public class Board {
 			R.add(cnctr);
 		else
 			B.add(cnctr);
+
+		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = c;
+		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = c;
 
 		//UPDATE LR, LB and LRB
 
@@ -74,7 +85,6 @@ public class Board {
 		{
 			F.remove(cn);
 		}
-
 	}
 
 	// Set up an iterator through the connectors of the given color, 
@@ -114,23 +124,14 @@ public class Board {
 	// Let its endpoints be p1 and p2.
 	// Return true exactly when there is a point p3 such that p1 is adjacent
 	// to p3 and p2 is adjacent to p3 and those connectors have color c.
-	public boolean formsTriangle(Connector cnctr, Color c){
+	public boolean formsTriangle(Connector cnctr, Color c)
+	{
 		if(cnctr == null)
 			throw new IllegalArgumentException("null Connector");
-
-		boolean triangle = false;
-		if(c.equals(Color.RED))
-		{
-			int i = 1;
-			while(i <= 6 && !triangle)
-			{
-				//triangle = R.
-			}
-		}
-		else 
-		{
-
-		}
+		for (int i = 0; i < 6; ++i)
+			if (_state[cnctr.endPt1() - 1][i] == c && _state[cnctr.endPt2() - 1][i] == c)
+					return true;
+		return false;
 	}
 	
 	// Choices & Rules part:
