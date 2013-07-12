@@ -15,6 +15,10 @@ public class Board {
 	private HashSet<Connector> LB;
 	private HashSet<Connector> LRB;
 	private HashSet<Connector> F;
+	
+	private final Functor[] _rules = {
+			new Rule1(),
+	};
 
 
 	// Initialize an empty board with no colored edges.
@@ -146,9 +150,11 @@ public class Board {
 	// return any uncolored connector.
 	public Connector choice ( ) {
 		if (starting)
-		{	//Rule 1:
+		{	
+			starting = false;
+			//Rule 1:
 			if(!R.contains(new Connector(1, 2)))
-				return new Connector(1,2);	
+				return new Connector(3,4);	
 			else
 				return new Connector(2,3);
 		}
@@ -178,10 +184,16 @@ public class Board {
 	}
 	
 	// Apply all the rules on a given set of iterators
-	
 	private Connector applyRules(Iterator<Connector> iter)
 	{
-		return null;
+		for (Functor rule : _rules)
+		{
+			List<Connector> result = rule.Execute(iter);
+			if (result.size() == 1)
+				return result.get(0);
+			iter = result.iterator();
+		}
+		throw new IllegalStateException("No move found !");
 	}
 
 	// Return true if the instance variables have correct and internally
@@ -232,5 +244,21 @@ public class Board {
 		{
 			_iterators.add(it);
 		}
+	}	
+	
+	public interface Functor
+	{
+		public List<Connector> Execute(Iterator<Connector> iter);
 	}
+
+	public class Rule1 implements Functor
+	{
+		@Override
+		public List<Connector> Execute(Iterator<Connector> iter)
+		{
+			return null;
+		}
+		
+	}
+	
 }
