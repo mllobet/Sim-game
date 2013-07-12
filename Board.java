@@ -8,14 +8,14 @@ public class Board {
 	private boolean starting;
 
 	private Color _state[][];
-	
+
 	private HashSet<Connector> R; 
 	private HashSet<Connector> B;
 	private HashSet<Connector> LR;
 	private HashSet<Connector> LB;
 	private HashSet<Connector> LRB;
 	private HashSet<Connector> F;
-	
+
 	private final Functor[] _rules = {
 			new Rule1(),
 	};
@@ -134,10 +134,10 @@ public class Board {
 			throw new IllegalArgumentException("null Connector");
 		for (int i = 0; i < 6; ++i)
 			if (_state[cnctr.endPt1() - 1][i] == c && _state[cnctr.endPt2() - 1][i] == c)
-					return true;
+				return true;
 		return false;
 	}
-	
+
 	// Choices & Rules part:
 
 	// The computer (playing BLUE) wants a move to make.
@@ -182,7 +182,7 @@ public class Board {
 			}
 		}
 	}
-	
+
 	// Apply all the rules on a given set of iterators
 	private Connector applyRules(Iterator<Connector> iter)
 	{
@@ -194,6 +194,37 @@ public class Board {
 			iter = result.iterator();
 		}
 		throw new IllegalStateException("No move found !");
+	}
+
+	// Returns whether or not a connector is red (painted red or dotted red
+	private boolean isRed(Connector c)
+	{
+		return R.contains(c) || LR.contains(c);
+	}
+
+	private boolean isNeutral(Connector c)
+	{
+		return F.contains(c);
+	}
+
+	// Returns how many loser triangles it creates
+	private int countLosers(Connector c)
+	{
+		int count = 0;
+		for(int i = 1; i <= 6; ++i)
+		{
+			if(c.endPt1() != i && c.endPt2() != i)
+			{
+				Connector c1 = new Connector(c.endPt1(), i);
+				Connector c2 = new Connector(c.endPt2(), i);
+				if ((isRed(c1)^isRed(c2) && (isNeutral(c1)^isNeutral(c2)))) 
+				{
+					++count;
+				}
+			}
+		}
+
+		return count;
 	}
 
 	// Return true if the instance variables have correct and internally
@@ -245,7 +276,7 @@ public class Board {
 			_iterators.add(it);
 		}
 	}	
-	
+
 	public interface Functor
 	{
 		public List<Connector> Execute(Iterator<Connector> iter);
@@ -258,7 +289,29 @@ public class Board {
 		{
 			return null;
 		}
-		
+
 	}
-	
+
+	public class Rule2 implements Functor
+	{
+		@Override
+		public List<Connector> Execute(Iterator<Connector> iter)
+		{
+			int min = Integer.MAX_VALUE;
+			LinkedList<Connector> result = new LinkedList<Connector>();
+			while (iter.hasNext())
+			{
+				Connector check = iter.next();
+				int count = countLosers(check);
+				if (count <= min)
+				{
+					min = count;
+					result.add(check);
+				}
+					
+			}
+			
+			return result;
+		}
+	}
 }
