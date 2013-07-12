@@ -25,7 +25,7 @@ public class Board {
 		F = new HashSet<Connector>(15);
 
 		_state = new Color[6][6];
-		
+
 		for(int i = 1; i <= 5; ++i)
 		{
 			Arrays.fill(_state[i], Color.WHITE);
@@ -44,13 +44,43 @@ public class Board {
 	{
 		if (R.contains(cnctr) || B.contains(cnctr))
 			throw new IllegalArgumentException("conector is already in the board");
-		
+
+		//UPDATE R or B SETS
 		if (c.equals(Color.RED))
 			R.add(cnctr);
 		else
 			B.add(cnctr);
+
 		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = c;
 		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = c;
+
+		//UPDATE LR, LB and LRB
+
+		LinkedList<Connector> removeList = new LinkedList<Connector>();
+
+		Iterator<Connector> iter = F.iterator();
+		while (iter.hasNext())
+		{
+			boolean redT, blueT;
+			Connector check = iter.next();
+			redT = formsTriangle(check,Color.RED);
+			blueT = formsTriangle(check,Color.BLUE);
+
+			if (redT && blueT)
+				LRB.add(check);
+			else if (redT)
+				LR.add(check);
+			else if (blueT)
+				LB.add(check);
+
+			if (redT || blueT)
+				removeList.add(check);
+		}
+
+		for(Connector cn : removeList)
+		{
+			F.remove(cn);
+		}
 	}
 
 	// Set up an iterator through the connectors of the given color, 
@@ -128,19 +158,13 @@ public class Board {
 	{
 		private List<Iterator<Connector>> _iterators;
 		private int _idx;
-		
-		public IteratorOfIterators()
-		{
-			_iterators = new ArrayList<Iterator<Connector>>();
-			_idx = 0;
-		}
-		
+
 		public IteratorOfIterators(Iterator<Connector>... iterators)
 		{
 			_iterators = Arrays.asList(iterators);
 			_idx = 0;
 		}
-		
+
 		@Override
 		public boolean hasNext()
 		{
@@ -163,7 +187,7 @@ public class Board {
 		{
 			// throw new RuntimeException("Method remove is not implemented and should not be used");
 		}
-		
+
 		public void concat(Iterator<Connector> it)
 		{
 			_iterators.add(it);
