@@ -7,7 +7,7 @@ public class Board {
 	public static boolean iAmDebugging = true;
 	private boolean starting;
 
-	protected Color _state[][];
+	private Color _state[][];
 
 	private HashSet<Connector> R; 
 	private HashSet<Connector> B;
@@ -42,7 +42,7 @@ public class Board {
 		}
 	}
 
-	// Add the given connector with the given color to the board.
+	// Add the given connector with the given color to the board. And update all the sets.
 	// Unchecked precondition: the given connector is not already chosen 
 	// as RED or BLUE.
 	public void add (Connector cnctr, Color c) 
@@ -58,6 +58,7 @@ public class Board {
 
 		System.out.println("Size before: " + F.size());
 
+		//Remove from previous set
 		if (F.contains(cnctr))
 			F.remove(cnctr);
 		else if (LR.contains(cnctr))
@@ -233,7 +234,19 @@ public class Board {
 				}
 				else
 				{
-					throw new IllegalArgumentException("WE ARE DOOMED");
+					//we lose:
+					iter = LB.iterator();
+					if(iter.hasNext())
+						return iter.next();
+					else
+					{
+						iter = LRB.iterator();
+						if(iter.hasNext())
+							return iter.next();
+						else
+							throw new IllegalArgumentException("THIS SHOULD NEVER HAPPEN");
+									
+					}				
 				}
 			}
 		}
