@@ -41,7 +41,7 @@ public class Driver {
 				System.exit (1);
 			}
 			myBoard.add (cnctr, Color.RED);
-			assert myBoard.isOK ( );
+			assert myBoard.isOK ( ) : "NOT OK";
 			
 			// Now it's the computer's turn.
 			Connector computerMove = myBoard.choice ( );
