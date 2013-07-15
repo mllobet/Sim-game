@@ -75,7 +75,33 @@ public class Board {
 		update();
 		
 		if(iAmDebugging)
-			System.out.println("Size after: " + F.size());
+			System.out.println("(add) Size after: " + F.size());
+	}
+	
+	public void remove(Connector c)
+	{
+		if (F.contains(c))
+			throw new IllegalArgumentException("Connector is not in the board");
+		
+		if(iAmDebugging)
+			System.out.println("(remove) Size before: " + F.size());
+		F.add(c);
+		
+		if (R.contains(c))
+			R.remove(c);
+		else if (LR.contains(c))
+			LR.remove(c);
+		else if (LB.contains(c))
+			LB.remove(c);
+		else
+			LRB.remove(c);
+		
+		_state[c.endPt1() - 1][c.endPt2() - 1] = Color.WHITE;
+		_state[c.endPt2() - 1][c.endPt1() - 1] = Color.WHITE;
+		
+		update();
+		if(iAmDebugging)
+			System.out.println("(remove) Size after: " + F.size());
 	}
 
 	private void update()
