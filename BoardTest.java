@@ -2,6 +2,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -53,10 +54,7 @@ public class BoardTest extends TestCase {
 		l1.add(new Connector(4, 5));
 		l3.add(new Connector(5, 6));
 		
-		Board.IteratorOfIterators it = new Board.IteratorOfIterators();
-		it.concat(l1.iterator());
-		it.concat(l2.iterator());
-		it.concat(l3.iterator());
+		Board.IteratorOfIterators it = new Board.IteratorOfIterators(l1.iterator(), l2.iterator(), l3.iterator());
 		int count = 0;
 		while (it.hasNext())
 		{
@@ -75,7 +73,30 @@ public class BoardTest extends TestCase {
 	//	Check red vs. blue counts.
 	//	Check for duplicate connectors.
 	//	Check for a blue triangle, which shouldn't exist.
-	private void checkCollection (Board b, int redCount, int blueCount) {
-		// Fill this in if you'd like to use this method.
+	private void checkCollection (Board b, int redCount, int blueCount)  {
+		assertEquals(true, b.isOK());
+		
+		int redBoardCount = iteratorLength(b.connectors(Color.RED));
+		int blueBoardCount = iteratorLength(b.connectors(Color.BLUE));
+		int whiteBoardCount = iteratorLength(b.connectors(Color.WHITE));
+		assertEquals(15, redBoardCount + blueBoardCount + whiteBoardCount);
+		
+		HashSet<Connector> set = new HashSet<Connector>();
+		for (Iterator<Connector> it = b.connectors(); it.hasNext();)
+		{
+			Connector c = it.next();
+			assertEquals(false, set.contains(c));
+			set.add(c);
+		}
+	}
+	
+	private int iteratorLength(Iterator<Connector> it) {
+		int count = 0;
+		while (it.hasNext())
+		{
+			it.next();
+			count++;
+		}
+		return count;
 	}
 }

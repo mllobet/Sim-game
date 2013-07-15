@@ -36,10 +36,11 @@ public class Board {
 
 		for(int i = 1; i <= 5; ++i)
 		{
-			Arrays.fill(_state[i], Color.WHITE);
+			Arrays.fill(_state[i - 1], Color.WHITE);
 			for(int j = i + 1; j <= 6; ++j)
 				F.add(new Connector(i,j));
 		}
+		Arrays.fill(_state[5], Color.WHITE);
 	}
 
 	// Add the given connector with the given color to the board. And update all the sets.
@@ -425,17 +426,17 @@ public class Board {
 		
 		// Count sizes of sets:
 		int connectorCount = R.size() + B.size() + LR.size() + LB.size() + LRB.size() + F.size();
-		if(connectorCount < 15 || connectorCount > 15)
+		if(connectorCount != 15)
 			return false;
 		
 		int adjMatConnectorcount = 0;
 		//Count edges in adj matrix
 		for(int i = 0; i < 6; ++i)
-			for(int j = 0; i < 6; ++j)
-				adjMatConnectorcount += !_state[i][j].equals(Color.WHITE) ? 1 : 0;
+			for(int j = 0; j < 6; ++j)
+				adjMatConnectorcount += _state[i][j].equals(Color.WHITE) ? 1 : 0;
 		adjMatConnectorcount /= 2;
 		
-		if(adjMatConnectorcount < 15 || connectorCount > 15)
+		if(adjMatConnectorcount < 15)
 			return false;
 		
 		//check for count difference 
