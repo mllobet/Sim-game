@@ -7,14 +7,14 @@ public class Board {
 	public static boolean iAmDebugging = true;
 	private boolean starting;
 
-	private Color _state[][];
+	private Color _state[][];		//Adjacency matrix representing the board
 
-	private HashSet<Connector> R; 
-	private HashSet<Connector> B;
-	private HashSet<Connector> LR;
-	private HashSet<Connector> LB;
-	private HashSet<Connector> LRB;
-	private HashSet<Connector> F;
+	private HashSet<Connector> R;	//Solid red edges 
+	private HashSet<Connector> B;	//Solid blue edges
+	private HashSet<Connector> LR;	//Losing red mvoes
+	private HashSet<Connector> LB;	//Losing blue moves
+	private HashSet<Connector> LRB; //Losing red and blue moves
+	private HashSet<Connector> F;	//Free moves
 
 	private final Functor[] _rules = {
 			new Rule1(),new Rule2(), new Rule3(), new Rule4(), new Rule5(), new Rule6()
@@ -50,13 +50,14 @@ public class Board {
 		if (R.contains(cnctr) || B.contains(cnctr))
 			throw new IllegalArgumentException("connector is already in the board");
 
-		//UPDATE R or B SETS
+		//UPDATE R or B SET
 		if (c.equals(Color.RED))
 			R.add(cnctr);
 		else
 			B.add(cnctr);
 
-		System.out.println("Size before: " + F.size());
+		if(iAmDebugging)
+			System.out.println("Size before: " + F.size());
 
 		//Remove from previous set
 		if (F.contains(cnctr))
@@ -72,15 +73,14 @@ public class Board {
 		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = c;
 
 		//UPDATE LR, LB and LRB
-
 		LinkedList<Connector> l = makeList(F.iterator(), LR.iterator(), LB.iterator(), LRB.iterator());
 
 		while (!l.isEmpty())
 		{
 			boolean redT, blueT;
-			
+
 			Connector check = l.remove();
-			
+
 			redT = formsTriangle(check,Color.RED);
 			blueT = formsTriangle(check,Color.BLUE);
 
@@ -131,7 +131,9 @@ public class Board {
 				F.remove(check);
 			}
 		}
-		System.out.println("Size after: " + F.size());
+
+		if(iAmDebugging)
+			System.out.println("Size after: " + F.size());
 	}
 
 	// Set up an iterator through the connectors of the given color, 
@@ -152,19 +154,19 @@ public class Board {
 	// No connector should appear twice in the iteration.  
 	public java.util.Iterator<Connector> connectors ( )
 	{
-		return new IteratorOfIterators(R.iterator(), B.iterator(), F.iterator());
+		return new IteratorOfIterators(R.iterator(), B.iterator(), LR.iterator(), LB.iterator(), LRB.iterator(), F.iterator());
 	}
-	
+
 	public Iterator<Connector> redDotted()
 	{
 		return LR.iterator();
 	}
-	
+
 	public Iterator<Connector> blueDotted()
 	{
 		return LB.iterator();
 	}
-	
+
 	public Iterator<Connector> dualDotted()
 	{
 		return LRB.iterator();
@@ -198,33 +200,48 @@ public class Board {
 
 	// Choices & Rules part:
 
-	// The computer (playing BLUE) wants a move to make.
-	// The board is assumed to contain an uncolored connector, with no 
-	// monochromatic triangles.
-	// There must be an uncolored connector, since if all 15 connectors are colored,
-	// there must be a monochromatic triangle.
-	// Pick the first uncolored connector that doesn't form a BLUE triangle.
-	// If each uncolored connector, colored BLUE, would form a BLUE triangle,
-	// return any uncolored connector.
+	//	Makes a move for the blue player
 	public Connector choice ( ) {
-		System.out.println("Choice");
+		if(iAmDebugging)
+			System.out.println("Choice");
+
+		// Rule 1:
 		if (starting)
 		{	
 			starting = false;
-			//Rule 1:
-			Iterator<Connector> iter = F.iterator();
-			return iter.next();
+
+			Iterator<Connector> iter = R.iterator();
+			Connector firstRed = new Connector(1,2);
+			if(iter.hasNext())
+			{
+				firstRed = iter.next();
+			}
+			
+			iter = F.iterator();
+			Connector out = new Connector(1,2);
+			while(iter.hasNext())
+			{
+				Connector c = iter.next();
+				
+				if(c.endPt1() != firstRed.endPt1() && c.endPt1() != firstRed.endPt2() && c.endPt2() != firstRed.endPt1()
+						&& c.endPt2() != firstRed.endPt2())
+				{
+					out = c;
+					break;
+				}
+			}
+			return out;
 		}
 		else
 		{
 			Iterator<Connector> iter = F.iterator();
 
-			//Rule 2:
+			// Rule 2:
 			if(iter != null && iter.hasNext())
 			{
 				return applyRules(iter);
 			}
-			//Rule 3:
+			// Rule 3:
 			else
 			{
 				iter = LR.iterator();
@@ -245,7 +262,7 @@ public class Board {
 							return iter.next();
 						else
 							throw new IllegalArgumentException("THIS SHOULD NEVER HAPPEN");
-									
+
 					}				
 				}
 			}
@@ -265,6 +282,42 @@ public class Board {
 		}
 		return result.get(0);
 		//throw new IllegalStateException("No move found !");
+	}
+
+	// Return true if the instance variables have correct and internally
+	// consistent values.  Return false otherwise.
+	// Unchecked prerequisites:
+	//	Each connector in the board is properly initialized so that 
+	// 	1 <= myPoint1 < myPoint2 <= 6.
+	public boolean isOK ( ) {
+		// Count sizes of sets:
+		int connectorCount = R.size() + B.size() + LR.size() + LB.size() + LRB.size() + F.size();
+		if(connectorCount < 15 || connectorCount > 15)
+			return false;
+
+		int adjMatConnectorcount = 0;
+		//Count edges in adj matrix
+		for(int i = 0; i < 6; ++i)
+			for(int j = 0; i < 6; ++j)
+				adjMatConnectorcount += !_state[i][j].equals(Color.WHITE) ? 1 : 0;
+		adjMatConnectorcount /= 2;
+
+		if(adjMatConnectorcount < 15 || connectorCount > 15)
+			return false;
+
+		//check for count difference 
+		int blueCount = B.size();
+		int redCount = R.size();
+		//blue can never have more connectors than red
+		if(blueCount - redCount > 0)
+			return false;
+
+		//red can never have more than 1 connector of difference
+		if(redCount - blueCount > 1)
+			return false;
+
+		// You fill this in.
+		return true;
 	}
 
 	// Returns whether or not a connector is red (painted red or dotted red)
@@ -406,49 +459,10 @@ public class Board {
 		return count;
 	}
 
-	// Return true if the instance variables have correct and internally
-	// consistent values.  Return false otherwise.
-	// Unchecked prerequisites:
-	//	Each connector in the board is properly initialized so that 
-	// 	1 <= myPoint1 < myPoint2 <= 6.
-	public boolean isOK ( ) {
-		// Count sizes of sets:
-		int connectorCount = R.size() + B.size() + LR.size() + LB.size() + LRB.size() + F.size();
-		if(connectorCount < 15 || connectorCount > 15)
-			return false;
-		
-		int adjMatConnectorcount = 0;
-		//Count edges in adj matrix
-		for(int i = 0; i < 6; ++i)
-			for(int j = 0; i < 6; ++j)
-				adjMatConnectorcount += !_state[i][j].equals(Color.WHITE) ? 1 : 0;
-		adjMatConnectorcount /= 2;
-		
-		if(adjMatConnectorcount < 15 || connectorCount > 15)
-			return false;
-		
-		//check for count difference 
-		int blueCount = B.size();
-		int redCount = R.size();
-		//blue can never have more connectors than red
-		if(blueCount - redCount > 0)
-			return false;
-			
-		//red can never have more than 1 connector of difference
-		if(redCount - blueCount > 1)
-			return false;
-		
-		
-		
-		
-		
-		
-		// You fill this in.
-		return true;
-	}
+
 
 	// Get lists from iterators
-	public static <T> LinkedList<T> makeList(Iterator<T>... iter) {
+	private static <T> LinkedList<T> makeList(Iterator<T>... iter) {
 		LinkedList<T> copy = new LinkedList<T>();
 		for(Iterator<T> it : iter)
 		{
@@ -458,47 +472,6 @@ public class Board {
 
 		return copy;
 	}
-
-	public static class IteratorOfIterators implements Iterator<Connector>
-	{
-		private List<Iterator<Connector>> _iterators;
-		private int _idx;
-
-		public IteratorOfIterators(Iterator<Connector>... iterators)
-		{
-			_iterators = Arrays.asList(iterators);
-			_idx = 0;
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			int idx = _idx;
-			while (idx < _iterators.size() && _iterators.get(idx).hasNext() == false)
-				idx++;
-			return idx < _iterators.size() && _iterators.get(idx).hasNext();
-		}
-
-		@Override
-		public Connector next()
-		{
-			while (_iterators.get(_idx).hasNext() == false)
-				_idx++;
-			return _iterators.get(_idx).next();
-		}
-
-		@Override
-		public void remove()
-		{
-			// throw new RuntimeException("Method remove is not implemented and should not be used");
-		}
-
-		public void concat(Iterator<Connector> it)
-		{
-			_iterators.add(it);
-		}
-	}	
-
 
 	private interface Functor
 
@@ -674,4 +647,44 @@ public class Board {
 			return result;
 		}
 	}
+
+	public static class IteratorOfIterators implements Iterator<Connector>
+	{
+		private List<Iterator<Connector>> _iterators;
+		private int _idx;
+
+		public IteratorOfIterators(Iterator<Connector>... iterators)
+		{
+			_iterators = Arrays.asList(iterators);
+			_idx = 0;
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			int idx = _idx;
+			while (idx < _iterators.size() && _iterators.get(idx).hasNext() == false)
+				idx++;
+			return idx < _iterators.size() && _iterators.get(idx).hasNext();
+		}
+
+		@Override
+		public Connector next()
+		{
+			while (_iterators.get(_idx).hasNext() == false)
+				_idx++;
+			return _iterators.get(_idx).next();
+		}
+
+		@Override
+		public void remove()
+		{
+			// throw new RuntimeException("Method remove is not implemented and should not be used");
+		}
+
+		public void concat(Iterator<Connector> it)
+		{
+			_iterators.add(it);
+		}
+	}	
 }
