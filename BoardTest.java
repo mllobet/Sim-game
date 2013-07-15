@@ -64,6 +64,53 @@ public class BoardTest extends TestCase {
 		assertEquals(5, count);
 	}
 	
+	@Test
+	public void testIsOK()
+	{
+		Board b = new Board();
+		assertTrue(b.isOK());
+		
+		b = new Board();
+		b.add(new Connector(1, 4), Color.BLUE);
+		b.add(new Connector(2, 4), Color.BLUE);
+		b.add(new Connector(3, 4), Color.BLUE);
+		b.add(new Connector(4, 5), Color.RED);
+		assertFalse(b.isOK());
+		
+		b = new Board();
+		b.add(new Connector(1, 4), Color.RED);
+		b.add(new Connector(2, 4), Color.RED);
+		b.add(new Connector(3, 4), Color.RED);
+		b.add(new Connector(4, 5), Color.BLUE);
+		assertFalse(b.isOK());
+		
+		b = new Board();
+		b.add(new Connector(1, 2), Color.RED);
+		b.add(new Connector(2, 3), Color.RED);
+		b.add(new Connector(3, 1), Color.RED);
+		b.add(new Connector(3, 5), Color.BLUE);
+		b.add(new Connector(3, 4), Color.BLUE);
+		assertTrue(b.isOK());
+		
+		b = new Board();
+		b.add(new Connector(1, 2), Color.BLUE);
+		b.add(new Connector(2, 3), Color.BLUE);
+		b.add(new Connector(3, 1), Color.BLUE);
+		b.add(new Connector(3, 5), Color.RED);
+		b.add(new Connector(3, 4), Color.RED);
+		assertFalse(b.isOK());
+		
+		b = new Board();
+		b.add(new Connector(1, 2), Color.BLUE);
+		b.add(new Connector(2, 3), Color.BLUE);
+		b.add(new Connector(3, 5), Color.BLUE);
+		b.add(new Connector(3, 6), Color.RED);
+		b.add(new Connector(3, 4), Color.RED);
+		b.add(new Connector(5, 6), Color.RED);
+		b.add(new Connector(5, 1), Color.RED);
+		assertTrue(b.isOK());
+	}
+	
 
 	// More tests go here.
 

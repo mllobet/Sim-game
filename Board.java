@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Board {
@@ -450,9 +449,9 @@ public class Board {
 		//Count edges in adj matrix
 		for(int i = 0; i < 6; ++i)
 			for(int j = 0; j < 6; ++j)
-				adjMatConnectorcount += _state[i][j].equals(Color.WHITE) ? 1 : 0;
+				adjMatConnectorcount += !_state[i][j].equals(Color.WHITE) ? 1 : 0;
 		adjMatConnectorcount /= 2;
-		if(adjMatConnectorcount < 15)
+		if(adjMatConnectorcount > 15)
 			return false;
 
 		//check for count difference 
