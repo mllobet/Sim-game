@@ -67,16 +67,19 @@ public class BoardTest extends TestCase {
 	@Test
 	public void testIsOK()
 	{
+		// Basic empty board test
 		Board b = new Board();
 		assertTrue(b.isOK());
 		
+		// Having more blue than red is impossible
 		b = new Board();
 		b.add(new Connector(1, 4), Color.BLUE);
 		b.add(new Connector(2, 4), Color.BLUE);
 		b.add(new Connector(3, 4), Color.BLUE);
 		b.add(new Connector(4, 5), Color.RED);
 		assertFalse(b.isOK());
-		
+
+		// You can only have 1 more red than blue
 		b = new Board();
 		b.add(new Connector(1, 4), Color.RED);
 		b.add(new Connector(2, 4), Color.RED);
@@ -84,6 +87,7 @@ public class BoardTest extends TestCase {
 		b.add(new Connector(4, 5), Color.BLUE);
 		assertFalse(b.isOK());
 		
+		// Should work
 		b = new Board();
 		b.add(new Connector(1, 2), Color.RED);
 		b.add(new Connector(2, 3), Color.RED);
@@ -92,6 +96,7 @@ public class BoardTest extends TestCase {
 		b.add(new Connector(3, 4), Color.BLUE);
 		assertTrue(b.isOK());
 		
+		// Test a blue triangle
 		b = new Board();
 		b.add(new Connector(1, 2), Color.BLUE);
 		b.add(new Connector(2, 3), Color.BLUE);
@@ -100,6 +105,7 @@ public class BoardTest extends TestCase {
 		b.add(new Connector(3, 4), Color.RED);
 		assertFalse(b.isOK());
 		
+		// Test a normal board
 		b = new Board();
 		b.add(new Connector(1, 2), Color.BLUE);
 		b.add(new Connector(2, 3), Color.BLUE);
