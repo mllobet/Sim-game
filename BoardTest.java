@@ -1,6 +1,9 @@
+import static org.junit.Assert.assertEquals;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -38,12 +41,37 @@ public class BoardTest extends TestCase {
 		assertEquals (b.colorOf (b.choice ( )), Color.WHITE);
 	}
 	
+	@Test
+	public void testIteratorsConcat()
+	{
+		List<Connector> l1 = new ArrayList<Connector>();
+		List<Connector> l2 = new ArrayList<Connector>();
+		List<Connector> l3 = new ArrayList<Connector>();
+		l1.add(new Connector(1, 2));
+		l1.add(new Connector(2, 3));
+		l1.add(new Connector(3, 4));
+		l1.add(new Connector(4, 5));
+		l3.add(new Connector(5, 6));
+		
+		Board.IteratorOfIterators it = new Board.IteratorOfIterators();
+		it.concat(l1.iterator());
+		it.concat(l2.iterator());
+		it.concat(l3.iterator());
+		int count = 0;
+		while (it.hasNext())
+		{
+			it.next();
+			count++;
+		}
+		assertEquals(5, count);
+	}
+	
 
 	// More tests go here.
 
 	// (a useful helper method)
 	// Make the following checks on a board that should be legal:
-	//	Check connector counts (# reds + # blues + # uncolored should be 16.
+	//	Check connector counts (# reds + # blues + # uncolored should be 15.
 	//	Check red vs. blue counts.
 	//	Check for duplicate connectors.
 	//	Check for a blue triangle, which shouldn't exist.
