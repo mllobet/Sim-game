@@ -31,6 +31,17 @@ public class Connector {
 	public String toString ( ) {
 		return "" + myPoint1 + myPoint2;
 	}
+	
+	public boolean isOK()
+	{
+		if (myPoint1 == myPoint2)
+			return false;
+		
+		if (myPoint1 < 1 || myPoint1 > 6 || myPoint2 < 1 || myPoint2 > 6)
+			return false;
+		
+		return true;
+	}
 
 	public int hashCode()
 	{

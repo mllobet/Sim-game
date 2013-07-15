@@ -216,13 +216,13 @@ public class Board {
 			{
 				firstRed = iter.next();
 			}
-			
+
 			iter = F.iterator();
 			Connector out = new Connector(1,2);
 			while(iter.hasNext())
 			{
 				Connector c = iter.next();
-				
+
 				if(c.endPt1() != firstRed.endPt1() && c.endPt1() != firstRed.endPt2() && c.endPt2() != firstRed.endPt1()
 						&& c.endPt2() != firstRed.endPt2())
 				{
@@ -282,42 +282,6 @@ public class Board {
 		}
 		return result.get(0);
 		//throw new IllegalStateException("No move found !");
-	}
-
-	// Return true if the instance variables have correct and internally
-	// consistent values.  Return false otherwise.
-	// Unchecked prerequisites:
-	//	Each connector in the board is properly initialized so that 
-	// 	1 <= myPoint1 < myPoint2 <= 6.
-	public boolean isOK ( ) {
-		// Count sizes of sets:
-		int connectorCount = R.size() + B.size() + LR.size() + LB.size() + LRB.size() + F.size();
-		if(connectorCount < 15 || connectorCount > 15)
-			return false;
-
-		int adjMatConnectorcount = 0;
-		//Count edges in adj matrix
-		for(int i = 0; i < 6; ++i)
-			for(int j = 0; i < 6; ++j)
-				adjMatConnectorcount += !_state[i][j].equals(Color.WHITE) ? 1 : 0;
-		adjMatConnectorcount /= 2;
-
-		if(adjMatConnectorcount < 15 || connectorCount > 15)
-			return false;
-
-		//check for count difference 
-		int blueCount = B.size();
-		int redCount = R.size();
-		//blue can never have more connectors than red
-		if(blueCount - redCount > 0)
-			return false;
-
-		//red can never have more than 1 connector of difference
-		if(redCount - blueCount > 1)
-			return false;
-
-		// You fill this in.
-		return true;
 	}
 
 	// Returns whether or not a connector is red (painted red or dotted red)
@@ -459,7 +423,75 @@ public class Board {
 		return count;
 	}
 
+	// Return true if the instance variables have correct and internally
+	// consistent values.  Return false otherwise.
+	// Unchecked prerequisites:
+	//	Each connector in the board is properly initialized so that 
+	// 	1 <= myPoint1 < myPoint2 <= 6.
+	public boolean isOK ( ) {
 
+		//		Each connector in the board is properly initialized so that 
+		// 	1 <= myPoint1 < myPoint2 <= 6.
+		Iterator<Connector> iters = connectors();
+
+		while (iters.hasNext())
+		{
+			if (!iters.next().isOK())
+				return false;
+		}
+
+		// Count sizes of sets:
+		int connectorCount = R.size() + B.size() + LR.size() + LB.size() + LRB.size() + F.size();
+		if(connectorCount < 15 || connectorCount > 15)
+			return false;
+
+		int adjMatConnectorcount = 0;
+		//Count edges in adj matrix
+		for(int i = 0; i < 6; ++i)
+			for(int j = 0; i < 6; ++j)
+				adjMatConnectorcount += !_state[i][j].equals(Color.WHITE) ? 1 : 0;
+		adjMatConnectorcount /= 2;
+
+		if(adjMatConnectorcount < 15 || connectorCount > 15)
+			return false;
+
+		//check for count difference 
+		int blueCount = B.size();
+		int redCount = R.size();
+		//blue can never have more connectors than red
+		if(blueCount - redCount > 0)
+			return false;
+
+		//red can never have more than 1 connector of difference
+		if(redCount - blueCount > 1)
+			return false;
+
+
+		if (blueCount == redCount)
+		{
+			Iterator<Connector> iter = R.iterator();
+
+			while (iter.hasNext())
+			{
+				if (formsTriangle(iter.next(), Color.RED))
+					return false;
+			}
+		}
+
+		if (redCount - blueCount == 1)
+		{
+			Iterator<Connector> iter = B.iterator();
+
+			while (iter.hasNext())
+			{
+				if (formsTriangle(iter.next(), Color.BLUE))
+					return false;
+			}
+		}
+
+		// You fill this in.
+		return true;
+	}
 
 	// Get lists from iterators
 	private static <T> LinkedList<T> makeList(Iterator<T>... iter) {
