@@ -72,6 +72,14 @@ public class Board {
 		_state[cnctr.endPt1() - 1][cnctr.endPt2() - 1] = c;
 		_state[cnctr.endPt2() - 1][cnctr.endPt1() - 1] = c;
 
+		update();
+		
+		if(iAmDebugging)
+			System.out.println("Size after: " + F.size());
+	}
+
+	private void update()
+	{
 		//UPDATE LR, LB and LRB
 		LinkedList<Connector> l = makeList(F.iterator(), LR.iterator(), LB.iterator(), LRB.iterator());
 
@@ -131,9 +139,6 @@ public class Board {
 				F.remove(check);
 			}
 		}
-
-		if(iAmDebugging)
-			System.out.println("Size after: " + F.size());
 	}
 
 	// Set up an iterator through the connectors of the given color, 
