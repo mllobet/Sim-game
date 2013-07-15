@@ -399,6 +399,17 @@ public class Board {
 	//	Each connector in the board is properly initialized so that 
 	// 	1 <= myPoint1 < myPoint2 <= 6.
 	public boolean isOK ( ) {
+		
+//		Each connector in the board is properly initialized so that 
+		// 	1 <= myPoint1 < myPoint2 <= 6.
+		Iterator<Connector> iters = connectors();
+		
+		while (iters.hasNext())
+		{
+			if (!iters.next().isOK())
+				return false;
+		}
+		
 		// Count sizes of sets:
 		int connectorCount = R.size() + B.size() + LR.size() + LB.size() + LRB.size() + F.size();
 		if(connectorCount < 15 || connectorCount > 15)
@@ -426,9 +437,27 @@ public class Board {
 			return false;
 		
 		
+		if (blueCount == redCount)
+		{
+			Iterator<Connector> iter = R.iterator();
+			
+			while (iter.hasNext())
+			{
+				if (formsTriangle(iter.next(), Color.RED))
+					return false;
+			}
+		}
 		
-		
-		
+		if (redCount - blueCount == 1)
+		{
+			Iterator<Connector> iter = B.iterator();
+			
+			while (iter.hasNext())
+			{
+				if (formsTriangle(iter.next(), Color.BLUE))
+					return false;
+			}
+		}
 		
 		// You fill this in.
 		return true;
